@@ -1,10 +1,11 @@
 import React from 'react';
-import { View } from 'react-native';
-import LoginForm from './Components/LoginForm';
-import LoginButton from './Components/LoginButton';
-import RegisterButton from './Components/RegisterButton';
+import { View, Text } from 'react-native';
+import LoginForm from './LoginForm';
+import Button from '../../Components/Button';
+import Header from '../../Components/Header';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../types';
+import styles from './styles';
 
 type LoginScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'Login'>;
@@ -12,19 +13,22 @@ type LoginScreenProps = {
 
 export default function LoginScreen({ navigation }: LoginScreenProps) {
   const handleLogin = () => {
-    // Aquí puedes agregar la lógica de autenticación
     navigation.navigate('Home');
   };
 
   const handleRegister = () => {
-    // Lógica de registro
+    navigation.navigate('Register');
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <LoginForm />
-      <LoginButton onPress={handleLogin} />
-      <RegisterButton onPress={handleRegister} />
+    <View style={styles.container}>
+      <Header />
+      <View style={styles.content}>
+        <Text style={styles.title}>INICIO DE SESIÓN</Text>
+        <LoginForm />
+        <Button onPress={handleLogin} title='Acceder'/>
+        <Button onPress={handleRegister} title='Registrarse' />
+      </View>
     </View>
   );
 }
