@@ -1,8 +1,0 @@
-huvisv79mtzld6f9_high = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.mx-queretaro-1.oraclecloud.com))(connect_data=(service_name=g55dd3bf034ee56_huvisv79mtzld6f9_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
-
-huvisv79mtzld6f9_low = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.mx-queretaro-1.oraclecloud.com))(connect_data=(service_name=g55dd3bf034ee56_huvisv79mtzld6f9_low.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
-
-huvisv79mtzld6f9_medium = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.mx-queretaro-1.oraclecloud.com))(connect_data=(service_name=g55dd3bf034ee56_huvisv79mtzld6f9_medium.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
-
-
-
