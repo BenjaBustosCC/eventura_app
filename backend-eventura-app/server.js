@@ -14,5 +14,4 @@ app.use("/api/users", userRoutes); // Usa las rutas de usuario
 
 // Iniciar el servidor
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://192.168.1.98:${PORT}`);
 });

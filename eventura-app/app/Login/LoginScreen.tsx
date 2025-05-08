@@ -13,6 +13,7 @@ type LoginScreenProps = {
 
 export default function LoginScreen({ navigation }: LoginScreenProps) {
   const handleLogin = () => {
+    // Aquí puedes agregar la lógica de inicio de sesión
     navigation.navigate('Home');
   };
 

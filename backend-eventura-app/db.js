@@ -1,12 +1,15 @@
-const mysql = require("mysql2/promise"); // Asegúrate de usar mysql2/promise
+const oracledb = require("oracledb");
 
-const pool = mysql.createPool({
-  host: "localhost", // Cambia esto al host de tu servidor MySQL
-  user: "root", // Usuario de MySQL
-  password: "Colocolo060811!", // Contraseña de MySQL
-  database: "eventura_app", // Nombre de la base de datos en MySQL
-  connectionLimit: 5,
-  port: 3307, // Cambia esto si tu MySQL está en otro puerto
-});
+oracledb.initOracleClient({ libDir: "C:\\instantclient_23_8" }); // Cambia la ruta si es necesario
 
-module.exports = pool;
+const dbConfig = {
+  user: "admin",
+  password: "Eventura0705",
+  connectString: "(DESCRIPTION=(ADDRESS=(PROTOCOL=tcps)(HOST=adb.mx-queretaro-1.oraclecloud.com)(PORT=1522))(CONNECT_DATA=(SERVICE_NAME=g55dd3bf034ee56_huvisv79mtzld6f9_high.adb.oraclecloud.com))(SECURITY=(MY_WALLET_DIRECTORY=C:\\Users\\benja\\dev\\eventura\\backend-eventura-app\\wallet)))"
+};
+
+async function getConnection() {
+  return await oracledb.getConnection(dbConfig);
+}
+
+module.exports = { getConnection };
