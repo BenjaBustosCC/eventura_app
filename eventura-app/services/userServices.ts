@@ -4,7 +4,7 @@ export const userService = {
         email: string;
         password: string;
     }) => {
-      const response = await fetch("http://192.168.1.98:3001/api/users/register", {
+      const response = await fetch("http://192.168.1.87:3001/api/users/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

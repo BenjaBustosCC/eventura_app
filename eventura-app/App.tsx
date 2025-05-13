@@ -7,7 +7,7 @@ import SplashScreen from "./app/SplashScreen/SplashScreen";
 import LoginScreen from "./app/Login/LoginScreen";
 import HomeScreen from "./app/Home/HomeScreen";
 import RegisterScreen from "./app/Register/RegisterScreen";
-
+import CrearScreen from './app/CrearEvento/CrearScreen';
 
 
 const Stack = createStackNavigator();
@@ -35,6 +35,7 @@ export default function App() {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="Crear" component={CrearScreen} />
         {/* Add more screens as needed */}
         {/* <Stack.Screen name="Register" component={RegisterScreen} /> */}
         {/* Add more screens as needed */}
