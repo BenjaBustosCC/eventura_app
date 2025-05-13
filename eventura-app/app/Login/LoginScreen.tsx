@@ -1,20 +1,36 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Alert } from 'react-native';
 import LoginForm from './LoginForm';
 import Button from '../../Components/Button';
 import Header from '../../Components/Header';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../types';
 import styles from './styles';
+import { authService } from '../../services/authServices';
 
 type LoginScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'Login'>;
 };
 
 export default function LoginScreen({ navigation }: LoginScreenProps) {
-  const handleLogin = () => {
-    // Aquí puedes agregar la lógica de inicio de sesión
-    navigation.navigate('Home');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    try {
+      const data = await authService.login(email, password);
+
+      if (data.token) {
+        // Aquí puedes guardar el token en AsyncStorage si lo necesitas
+        // await AsyncStorage.setItem('userToken', data.token);
+        
+        // Navegar a Home
+        navigation.navigate('Home');
+      }
+    } catch (error: any) {
+      console.error('Error detallado:', error);
+      Alert.alert('Error', error.message || 'Error al iniciar sesión');
+    }
   };
 
   const handleRegister = () => {
@@ -26,7 +42,12 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
       <Header />
       <View style={styles.content}>
         <Text style={styles.title}>INICIO DE SESIÓN</Text>
-        <LoginForm />
+        <LoginForm 
+          email={email}
+          password={password}
+          onEmailChange={setEmail}
+          onPasswordChange={setPassword}
+        />
         <Button onPress={handleLogin} title='Acceder'/>
         <Button onPress={handleRegister} title='Registrarse' />
       </View>

@@ -6,4 +6,5 @@ export type RootStackParamList = {
     Home: undefined;
     Register: undefined;
     Crear: undefined;
+    Profile: undefined;
 }

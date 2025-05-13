@@ -16,7 +16,7 @@ exports.registerUser = async (req, res) => {
 
     // Ejecutar la query (Oracle usa :param en vez de ?)
     await conn.execute(
-      "INSERT INTO usuarios (nombre_usuario, email, password) VALUES (:name, :email, :password)",
+      "INSERT INTO usuarios (nombre_usuario, email, password, id_rol) VALUES (:name, :email, :password, 2 )",
       { name, email, password: hashedPassword },
       { autoCommit: true }
     );

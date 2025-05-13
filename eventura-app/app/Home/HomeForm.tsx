@@ -5,7 +5,7 @@ import styles from './styles';
 type EventoCardProps = {
   titulo: string;
   fecha: string;
-  imagen: string;
+  imagen: string; 
 };
 
 const EventoCard = ({ titulo, fecha, imagen }: EventoCardProps) => (

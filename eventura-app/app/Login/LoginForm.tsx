@@ -1,24 +1,33 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import TextInputField from '../../Components/TextInputField';
 
-export default function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+type LoginFormProps = {
+  email: string;
+  password: string;
+  onEmailChange: (text: string) => void;
+  onPasswordChange: (text: string) => void;
+};
 
+export default function LoginForm({ 
+  email, 
+  password, 
+  onEmailChange, 
+  onPasswordChange 
+}: LoginFormProps) {
   return (
     <View style={styles.container}>
       <TextInputField
         placeholder="Correo electrónico"
         value={email}
-        onChangeText={setEmail}
+        onChangeText={onEmailChange}
         autoCapitalize="none"
         keyboardType="email-address"
       />
       <TextInputField
         placeholder="Contraseña"
         value={password}
-        onChangeText={setPassword}
+        onChangeText={onPasswordChange}
         secureTextEntry
       />
     </View>

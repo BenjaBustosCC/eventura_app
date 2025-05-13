@@ -1,3 +1,4 @@
+// app/App.tsx
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import { StyleSheet } from "react-native";
@@ -8,7 +9,8 @@ import LoginScreen from "./app/Login/LoginScreen";
 import HomeScreen from "./app/Home/HomeScreen";
 import RegisterScreen from "./app/Register/RegisterScreen";
 import CrearScreen from './app/CrearEvento/CrearScreen';
-
+import ProfileScreen from './app/Profile/ProfileScreen';
+import { EventProvider } from './app/context/EventContext'; // Importa el contexto
 
 const Stack = createStackNavigator();
 
@@ -23,24 +25,21 @@ export default function App() {
   }, []);
 
   if (isLoading) {
-    return (
-        <SplashScreen/>
-    );
+    return <SplashScreen />;
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen name="Crear" component={CrearScreen} />
-        {/* Add more screens as needed */}
-        {/* <Stack.Screen name="Register" component={RegisterScreen} /> */}
-        {/* Add more screens as needed */}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <EventProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="Crear" component={CrearScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </EventProvider>
   );
 }
 
