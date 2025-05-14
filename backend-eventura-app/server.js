@@ -11,7 +11,10 @@ app.use(bodyParser.json());
 
 // Rutas
 app.use("/api/users", userRoutes); // Usa las rutas de usuario
+app.use("/api/eventos", require("./routes/eventRoutes")); // Usa las rutas de eventos
+app.use("/api/tipos-evento", require("./routes/eventTypeRoutes")); // Usa las rutas de tipos de eventos
 
 // Iniciar el servidor
 app.listen(PORT, () => {
+  console.log(`Servidor corriendo`);
 });

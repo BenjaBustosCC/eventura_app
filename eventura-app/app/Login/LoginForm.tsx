@@ -1,21 +1,31 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import TextInputField from '../../Components/TextInputField';
+import React, { Dispatch, SetStateAction } from 'react';
+import { View } from 'react-native';
+import Input from '../../Components/TextInputField';
+import styles from './styles';
 
-export default function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+interface LoginFormProps {
+  email: string;
+  setEmail: Dispatch<SetStateAction<string>>;
+  password: string;
+  setPassword: Dispatch<SetStateAction<string>>;
+}
 
+const LoginForm: React.FC<LoginFormProps> = ({
+  email,
+  setEmail,
+  password,
+  setPassword
+}) => {
   return (
-    <View style={styles.container}>
-      <TextInputField
-        placeholder="Correo electrónico"
+    <View style={styles.form}>
+      <Input
+        placeholder="Email"
         value={email}
         onChangeText={setEmail}
-        autoCapitalize="none"
         keyboardType="email-address"
+        autoCapitalize="none"
       />
-      <TextInputField
+      <Input
         placeholder="Contraseña"
         value={password}
         onChangeText={setPassword}
@@ -23,11 +33,6 @@ export default function LoginForm() {
       />
     </View>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    width: '70%',
-    padding: 16,
-  },
-});
+export default LoginForm;

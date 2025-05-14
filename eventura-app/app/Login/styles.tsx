@@ -6,14 +6,17 @@ export default StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    marginTop: 100, // Ajusta este valor según lo que necesites
+    padding: 20,
+    justifyContent: 'center',
   },
   title: {
-    fontSize: 25,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 24,
-    color: '#191013',
+    textAlign: 'center',
+    marginBottom: 20,
   },
+  form: {
+    width: '100%',
+    marginVertical: 20,
+  }
 });
