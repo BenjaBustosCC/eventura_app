@@ -1,10 +1,11 @@
+import { API_URL } from '@env';
 export const userService = {
     registerUser: async (user: {
         name: string;
         email: string;
         password: string;
     }) => {
-      const response = await fetch("http://192.168.1.98:3001/api/users/register", {
+      const response = await fetch(`${API_URL}/users/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

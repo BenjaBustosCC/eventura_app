@@ -1,11 +1,12 @@
 const oracledb = require("oracledb");
+require('dotenv').config();
 
-oracledb.initOracleClient({ libDir: "C:\\instantclient_23_8" }); // Cambia la ruta si es necesario
+oracledb.initOracleClient({ libDir: process.env.ORACLE_CLIENT_PATH });
 
 const dbConfig = {
-  user: "admin",
-  password: "Eventura0705",
-  connectString: "(DESCRIPTION=(ADDRESS=(PROTOCOL=tcps)(HOST=adb.mx-queretaro-1.oraclecloud.com)(PORT=1522))(CONNECT_DATA=(SERVICE_NAME=g55dd3bf034ee56_huvisv79mtzld6f9_high.adb.oraclecloud.com))(SECURITY=(MY_WALLET_DIRECTORY=C:\\Users\\benja\\dev\\eventura\\backend-eventura-app\\wallet)))"
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  connectString: `(DESCRIPTION=(ADDRESS=(PROTOCOL=tcps)(HOST=${process.env.DB_HOST})(PORT=${process.env.DB_PORT}))(CONNECT_DATA=(SERVICE_NAME=${process.env.DB_SERVICE_NAME}))(SECURITY=(MY_WALLET_DIRECTORY=${process.env.WALLET_PATH})))`,
 };
 
 async function getConnection() {

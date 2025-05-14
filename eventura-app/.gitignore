@@ -37,3 +37,6 @@ yarn-error.*
 
 #wallet
 wallet/
+
+#env
+.env
