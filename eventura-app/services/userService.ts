@@ -1,4 +1,5 @@
 import { API_URL } from '@env';
+
 export const userService = {
     registerUser: async (user: {
         name: string;
