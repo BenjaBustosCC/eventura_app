@@ -37,6 +37,7 @@ const eventController = {
   },
 
 
+
   // crear evento
   createEvent: async (req, res) => {
     const {

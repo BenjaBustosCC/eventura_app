@@ -1,6 +1,10 @@
 const oracledb = require("oracledb");
 require('dotenv').config();
 
+console.log("🛠 Oracle Client Path:", process.env.ORACLE_CLIENT_PATH);
+console.log("🛠 DB User:", process.env.DB_USER);
+console.log("🛠 Wallet Path:", process.env.WALLET_PATH);
+
 oracledb.initOracleClient({ libDir: process.env.ORACLE_CLIENT_PATH });
 
 const dbConfig = {

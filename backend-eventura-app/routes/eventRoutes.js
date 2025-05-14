@@ -11,9 +11,6 @@ router.get('/eventos/:id', eventController.getEventById);
 // Get events by user ID
 router.get('/eventos/usuario/:userId', eventController.getEventsByUserId);
 
-// Get events by type
-router.get('/eventos/tipo/:typeId', eventController.getEventsByType);
-
 // Create new event
 router.post('/eventos', eventController.createEvent);
 

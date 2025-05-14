@@ -4,7 +4,7 @@ const eventTypeController = {
   // obtener todos los tipos de eventos
   getAllEventTypes: async (req, res) => {
     try {
-      const result = await db.query('SELECT * FROM tipo_evento');
+      const result = await conn.query('SELECT * FROM tipo_evento');
       res.json(result.rows);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -16,9 +16,12 @@ const eventTypeController = {
     const { nombre_tipo_evento } = req.body;
 
     try {
-      const result = await db.query(
-        'INSERT INTO tipo_evento (nombre_tipo_evento) VALUES ($1) RETURNING *',
-        [nombre_tipo_evento]
+      const result = await conn.query(
+        `INSERT INTO tipo_evento (nombre_tipo_evento) 
+         VALUES (:nombre_tipo_evento) 
+         RETURNING id_tipo_evento, nombre_tipo_evento INTO :out`,
+        { nombre_tipo_evento },
+        { autoCommit: true }
       );
       res.status(201).json(result.rows[0]);
     } catch (error) {
@@ -30,12 +33,13 @@ const eventTypeController = {
   deleteEventType: async (req, res) => {
     const { id } = req.params;
     try {
-      const result = await db.query(
-        'DELETE FROM tipo_evento WHERE id_tipo_evento = $1 RETURNING *',
-        [id]
+      const result = await conn.query(
+        'DELETE FROM tipo_evento WHERE id_tipo_evento = :id RETURNING id_tipo_evento INTO :out',
+        { id },
+        { autoCommit: true }
       );
       
-      if (result.rows.length === 0) {
+      if (result.rowsAffected === 0) {
         return res.status(404).json({ message: 'Tipo de evento no encontrado' });
       }
       
