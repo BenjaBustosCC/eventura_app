@@ -1,3 +1,4 @@
+// app/Login/LoginScreen.tsx
 import React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import LoginForm from './LoginForm';
@@ -10,9 +11,10 @@ import { useLogin } from '../../hooks/useLogin';
 
 type LoginScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'Login'>;
+  setIsAuthenticated: (value: boolean) => void; // Nuevo prop
 };
 
-export default function LoginScreen({ navigation }: LoginScreenProps) {
+export default function LoginScreen({ navigation, setIsAuthenticated }: LoginScreenProps) {
   const {
     email,
     setEmail,
@@ -20,8 +22,18 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
     setPassword,
     isLoading,
     handleLogin,
-    handleRegister
-  } = useLogin({ navigation });
+  } = useLogin(); // Ahora no necesita navigation
+
+  const onSubmit = async () => {
+    const success = await handleLogin();
+    if (success) {
+      setIsAuthenticated(true); // Notifica a App.jsx
+    }
+  };
+
+  const handleRegister = () => {
+    navigation.navigate('Register');
+  };
 
   return (
     <View style={styles.container}>
@@ -38,8 +50,8 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
           <>
-            <Button onPress={handleLogin} title='Acceder'/>
-            <Button onPress={handleRegister} title='Registrarse' />
+            <Button onPress={onSubmit} title="Acceder" />
+            <Button onPress={handleRegister} title="Registrarse" />
           </>
         )}
       </View>

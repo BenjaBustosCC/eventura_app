@@ -1,13 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-//import BottomTabNavigator from '../../Components/BottomTab';
 
-export default function HomeScreen() {
+export default function ProfileScreen() {
   return (
     <View style={styles.container}>
-      
-      <Text style={styles.title}>Bienvenido a la pantalla principal</Text>
-      
+      <Text style={styles.title}>Pantalla perfil</Text>
     </View>
   );
 }

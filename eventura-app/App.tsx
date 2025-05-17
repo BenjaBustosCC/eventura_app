@@ -7,13 +7,14 @@ import SplashScreen from "./app/SplashScreen/SplashScreen";
 import LoginScreen from "./app/Login/LoginScreen";
 import HomeScreen from "./app/Home/HomeScreen";
 import RegisterScreen from "./app/Register/RegisterScreen";
-
+import BottomTabNavigator from "./Navigation/BottomTab";
 
 
 const Stack = createStackNavigator();
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Estado de autenticación
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -31,14 +32,20 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} />
-        {/* Add more screens as needed */}
-        {/* <Stack.Screen name="Register" component={RegisterScreen} /> */}
-        {/* Add more screens as needed */}
+        {!isAuthenticated ? (
+          // Pantallas de autenticación (sin tabs)
+          <>
+            <Stack.Screen name="Login">
+              {(props) => <LoginScreen {...props} setIsAuthenticated={setIsAuthenticated} />}
+            </Stack.Screen>
+            <Stack.Screen name="Register" component={RegisterScreen} />
+          </>
+        ) : (
+          // Pantallas principales (con tabs)
+          <Stack.Screen name="HomeTabs" component={BottomTabNavigator} />
+        )}
       </Stack.Navigator>
+      <StatusBar style="auto" />
     </NavigationContainer>
   );
 }
