@@ -38,3 +38,11 @@ export async function fetchEventosByUserId(userId: number | string) {
   if (!response.ok) throw new Error('Error al obtener los eventos del usuario');
   return response.json();
 }
+
+export async function deleteEvento(id: number | string) {
+  const response = await fetch(`${API_URL}/eventos/eventos/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Error al eliminar el evento');
+  return response.json();
+}
