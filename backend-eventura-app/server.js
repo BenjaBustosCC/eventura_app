@@ -1,8 +1,3 @@
-//KBROS EN EL PACKAGE.JSON CAMBIE LA VERSION DE EXPRESS DE 5.10... A 4.18
-// Y ESO LO ARREGLO. Y AGREGUE UNAS RUTAS PARA CONECTAR TODO CLARAMENTE
-//Y HASTA EL MOMENTO NO SE HA ROTO NADA DE NUEVO :3
-
-
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -13,7 +8,7 @@ const eventTypeRoutes = require("./routes/eventTypeRoutes"); // Importa las ruta
 const authRoutes = require('./routes/authRoutes');
 
 const app = express();
-const PORT = 8081;
+const PORT = 3001;
 
 app.use(cors({
   origin: "*",
