@@ -1,15 +1,35 @@
 const db = require('../db');
+const pool = require("../db.js");
+
 
 const eventController = {
   // obtener todos los eventos
   getAllEvents: async (req, res) => {
-    try {
-      const result = await db.query('SELECT * FROM evento');
-      res.json(result.rows);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  },
+  let conn;
+  try {
+    conn = await pool.getConnection();
+
+    const result = await conn.execute(
+      `SELECT id_evento, nombre_evento, TO_CHAR(fecha_evento, 'DD-MM-YYYY'), TO_CHAR(hora_inicio_evento, 'HH24:MI')
+       FROM evento
+       ORDER BY fecha_evento ASC`
+    );
+
+    const eventos = result.rows.map((row) => ({
+      id: row[0],
+      titulo: row[1],
+      fecha: `${row[2]} a las ${row[3]}`,
+      imagen: 'https://via.placeholder.com/150', // Podés adaptar esto si tenés un campo real de imagen
+    }));
+
+    await conn.close();
+    res.json(eventos);
+  } catch (error) {
+    if (conn) await conn.close();
+    console.error("Error al obtener eventos:", error);
+    res.status(500).json({ error: "Error al obtener eventos" });
+  }
+},
 
   // obtener evento por ID
   getEventById: async (req, res) => {

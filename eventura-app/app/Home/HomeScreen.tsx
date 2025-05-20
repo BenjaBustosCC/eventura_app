@@ -1,13 +1,53 @@
-import React, { Component } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-//import BottomTabNavigator from '../../Components/BottomTab';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { fetchEventos } from '../../services/eventService';
+import HomeCard from './HomeCard'; // Importa tu componente
+
+type Evento = {
+  id_evento?: number | string;
+  nombre?: string;
+  titulo?: string;
+  fecha?: string;
+  descripcion?: string;
+};
 
 export default function HomeScreen() {
+  const [eventos, setEventos] = useState<Evento[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchEventos()
+      .then(data => {
+        setEventos(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error(error);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#6200ee" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      
-      <Text style={styles.title}>Bienvenido a la pantalla principal</Text>
-      
+      <FlatList
+        data={eventos}
+        keyExtractor={item => item.id_evento?.toString() || Math.random().toString()}
+        renderItem={({ item }) => (
+          <HomeCard
+            nombre={item.nombre || item.titulo || 'Evento sin nombre'}
+            fecha={item.fecha || ''}
+          />
+        )}
+        ListEmptyComponent={<Text>No hay eventos disponibles.</Text>}
+      />
     </View>
   );
 }
@@ -15,12 +55,14 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingTop: 32,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    marginVertical: 16,
   },
 });
