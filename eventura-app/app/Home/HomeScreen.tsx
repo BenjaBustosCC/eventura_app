@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { fetchEventos } from '../../services/eventService';
-import HomeCard from './HomeCard'; // Importa tu componente
+import HomeCard from './HomeCard';
+import { useFocusEffect } from '@react-navigation/native';
 
 type Evento = {
   id_evento?: number | string;
@@ -15,17 +16,20 @@ export default function HomeScreen() {
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchEventos()
-      .then(data => {
-        setEventos(data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error(error);
-        setLoading(false);
-      });
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      setLoading(true);
+      fetchEventos()
+        .then(data => {
+          setEventos(data);
+          setLoading(false);
+        })
+        .catch(error => {
+          console.error(error);
+          setLoading(false);
+        });
+    }, [])
+  );
 
   if (loading) {
     return (

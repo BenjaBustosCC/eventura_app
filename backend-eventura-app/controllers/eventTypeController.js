@@ -1,13 +1,26 @@
 const db = require('../db');
+const pool = require("../db.js");
+
 
 const eventTypeController = {
   // obtener todos los tipos de eventos
   getAllEventTypes: async (req, res) => {
+    let conn;
     try {
-      const result = await conn.query('SELECT * FROM tipo_evento');
-      res.json(result.rows);
+      conn = await pool.getConnection();
+      const result = await conn.execute(
+        `SELECT id_tipo_evento, nombre_tipo_evento FROM tipo_evento ORDER BY nombre_tipo_evento ASC`
+      );
+      const tipos = result.rows.map(row => ({
+        id: row[0],
+        nombre: row[1],
+      }));
+      await conn.close();
+      res.json(tipos);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      if (conn) await conn.close();
+      console.error("Error al obtener tipos de evento:", error);
+      res.status(500).json({ error: "Error al obtener tipos de evento" });
     }
   },
 

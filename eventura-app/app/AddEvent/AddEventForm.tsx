@@ -1,33 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Platform, Alert, ScrollView } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Platform, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { fetchTiposEvento, createEvento } from '../../services/eventService';
-import { authService } from '../../services/authService';
 
-export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }) {
+type AddEventFormProps = {
+  userId: number | string;
+  onSuccess?: () => void;
+};
+
+export default function AddEventForm({ userId, onSuccess }: AddEventFormProps) {
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const [lugar, setLugar] = useState('');
   const [fecha, setFecha] = useState(new Date());
   const [horaInicio, setHoraInicio] = useState(new Date());
   const [horaTermino, setHoraTermino] = useState(new Date());
   const [tipoEventoId, setTipoEventoId] = useState('');
   const [tiposEvento, setTiposEvento] = useState<{ id: number | string; nombre: string }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<number | string | null>(null);
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showHoraInicio, setShowHoraInicio] = useState(false);
   const [showHoraTermino, setShowHoraTermino] = useState(false);
 
-  // Obtener usuario autenticado
-  useEffect(() => {
-    authService.getCurrentUser().then(user => {
-      if (user && user.id) setUserId(user.id);
-    });
-  }, []);
-
-  // Obtener tipos de evento
   useEffect(() => {
     fetchTiposEvento()
       .then(data => {
@@ -42,32 +36,25 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
   }, []);
 
   const handleSubmit = async () => {
-    if (!userId) {
-      Alert.alert('Error', 'No se encontró el usuario autenticado');
-      return;
-    }
     try {
-      const evento = {
+      await createEvento({
         nombre_evento: nombre,
         descripcion_evento: descripcion,
         fecha_evento: fecha.toISOString().split('T')[0],
         hora_inicio_evento: horaInicio.toTimeString().slice(0, 5),
         hora_termino_evento: horaTermino.toTimeString().slice(0, 5),
-        lugar_evento: lugar,
+        lugar_evento: 'placeholder', // Placeholder, puedes agregar un campo para el lugar si es necesario
         id_usuario: userId,
         id_tipo_evento: tipoEventoId,
-      };
-      console.log('Evento a enviar:', evento);
-      await createEvento(evento);
+      });
       Alert.alert('Éxito', 'Evento creado correctamente');
       if (onSuccess) onSuccess();
-    } catch (error: any) {
-      console.error('Error al crear evento:', error);
-      Alert.alert('Error', `No se pudo crear el evento: ${error?.message || error}`);
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo crear el evento');
     }
   };
 
-  if (loading || !userId) {
+  if (loading) {
     return (
       <View style={styles.container}>
         <Text>Cargando tipos de evento...</Text>
@@ -76,7 +63,7 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+    <View style={styles.container}>
       <Text style={styles.label}>Nombre del Evento</Text>
       <TextInput
         style={styles.input}
@@ -92,14 +79,6 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
         onChangeText={setDescripcion}
         placeholder="Descripción del evento"
         multiline
-      />
-
-      <Text style={styles.label}>Lugar</Text>
-      <TextInput
-        style={styles.input}
-        value={lugar}
-        onChangeText={setLugar}
-        placeholder="Lugar del evento"
       />
 
       <Text style={styles.label}>Fecha del Evento</Text>
@@ -161,7 +140,7 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
               styles.pickerItem,
               tipoEventoId === tipo.id && styles.pickerItemSelected,
             ]}
-            onPress={() => setTipoEventoId(String(tipo.id))}
+        onPress={() => setTipoEventoId(String(tipo.id))}
           >
             <Text style={tipoEventoId === tipo.id ? styles.pickerTextSelected : styles.pickerText}>
               {tipo.nombre}
@@ -171,7 +150,7 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
       </View>
 
       <Button title="Crear Evento" onPress={handleSubmit} />
-    </ScrollView>
+    </View>
   );
 }
 
