@@ -19,7 +19,7 @@ const eventController = {
       id: row[0],
       titulo: row[1],
       fecha: `${row[2]} a las ${row[3]}`,
-      imagen: 'https://via.placeholder.com/150', // Podés adaptar esto si tenés un campo real de imagen
+      imagen: 'https://via.placeholder.com/150', // Puedes adaptar esto si tenés un campo real de imagen
     }));
 
     await conn.close();

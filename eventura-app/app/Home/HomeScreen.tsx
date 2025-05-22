@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
-import { fetchEventos } from '../../services/eventService';
-import HomeCard from './HomeCard';
-import { useFocusEffect } from '@react-navigation/native';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
+import { fetchEventos } from "../../services/eventService";
+import HomeCard from "./HomeCard";
+import { useFocusEffect } from "@react-navigation/native";
 
 type Evento = {
   id_evento?: number | string;
@@ -20,11 +26,11 @@ export default function HomeScreen() {
     React.useCallback(() => {
       setLoading(true);
       fetchEventos()
-        .then(data => {
+        .then((data) => {
           setEventos(data);
           setLoading(false);
         })
-        .catch(error => {
+        .catch((error) => {
           console.error(error);
           setLoading(false);
         });
@@ -33,7 +39,7 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <View style={styles.containerLoading}>
         <ActivityIndicator size="large" color="#6200ee" />
       </View>
     );
@@ -43,14 +49,17 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <FlatList
         data={eventos}
-        keyExtractor={item => item.id_evento?.toString() || Math.random().toString()}
+        keyExtractor={(item) =>
+          item.id_evento?.toString() || Math.random().toString()
+        }
         renderItem={({ item }) => (
           <HomeCard
-            nombre={item.nombre || item.titulo || 'Evento sin nombre'}
-            fecha={item.fecha || ''}
+            nombre={item.nombre || item.titulo || "Evento sin nombre"}
+            fecha={item.fecha || ""}
           />
         )}
         ListEmptyComponent={<Text>No hay eventos disponibles.</Text>}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );
@@ -59,14 +68,19 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    alignItems: "center",
+    backgroundColor: "#fff",
     paddingHorizontal: 16,
-    paddingTop: 32,
+  },
+  containerLoading: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingHorizontal: 16,
+    justifyContent: "center",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginVertical: 16,
   },
 });

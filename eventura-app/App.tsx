@@ -9,7 +9,6 @@ import HomeScreen from "./app/Home/HomeScreen";
 import RegisterScreen from "./app/Register/RegisterScreen";
 import BottomTabNavigator from "./Navigation/BottomTab";
 
-
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -24,9 +23,7 @@ export default function App() {
   }, []);
 
   if (isLoading) {
-    return (
-        <SplashScreen/>
-    );
+    return <SplashScreen />;
   }
 
   return (
@@ -36,13 +33,24 @@ export default function App() {
           // Pantallas de autenticación (sin tabs)
           <>
             <Stack.Screen name="Login">
-              {(props) => <LoginScreen {...props} setIsAuthenticated={setIsAuthenticated} />}
+              {(props) => (
+                <LoginScreen
+                  {...props}
+                  setIsAuthenticated={setIsAuthenticated}
+                />
+              )}
             </Stack.Screen>
             <Stack.Screen name="Register" component={RegisterScreen} />
           </>
         ) : (
           // Pantallas principales (con tabs)
-          <Stack.Screen name="HomeTabs" component={BottomTabNavigator} />
+          <Stack.Screen
+            name="HomeTabs"
+            // Usar children para pasar props personalizados
+            children={(props) => (
+              <BottomTabNavigator {...props} setIsAuthenticated={setIsAuthenticated} />
+            )}
+          />
         )}
       </Stack.Navigator>
       <StatusBar style="auto" />
@@ -53,8 +61,8 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

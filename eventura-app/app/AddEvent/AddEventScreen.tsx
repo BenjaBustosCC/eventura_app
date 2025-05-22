@@ -1,18 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Platform, Alert, ScrollView } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { fetchTiposEvento, createEvento } from '../../services/eventService';
-import { authService } from '../../services/authService';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+  Alert,
+  ScrollView,
+} from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { fetchTiposEvento, createEvento } from "../../services/eventService";
+import { authService } from "../../services/authService";
+import ButtonProps from "../../Components/Button";
 
-export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }) {
-  const [nombre, setNombre] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [lugar, setLugar] = useState('');
+export default function AddEventScreen({
+  onSuccess,
+}: {
+  onSuccess?: () => void;
+}) {
+  const [nombre, setNombre] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [lugar, setLugar] = useState("");
   const [fecha, setFecha] = useState(new Date());
   const [horaInicio, setHoraInicio] = useState(new Date());
   const [horaTermino, setHoraTermino] = useState(new Date());
-  const [tipoEventoId, setTipoEventoId] = useState('');
-  const [tiposEvento, setTiposEvento] = useState<{ id: number | string; nombre: string }[]>([]);
+  const [tipoEventoId, setTipoEventoId] = useState("");
+  const [tiposEvento, setTiposEvento] = useState<
+    { id: number | string; nombre: string }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<number | string | null>(null);
 
@@ -22,7 +38,7 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
 
   // Obtener usuario autenticado
   useEffect(() => {
-    authService.getCurrentUser().then(user => {
+    authService.getCurrentUser().then((user) => {
       if (user && user.id) setUserId(user.id);
     });
   }, []);
@@ -30,40 +46,43 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
   // Obtener tipos de evento
   useEffect(() => {
     fetchTiposEvento()
-      .then(data => {
+      .then((data) => {
         setTiposEvento(data);
-        setTipoEventoId(data[0]?.id || '');
+        setTipoEventoId(data[0]?.id || "");
         setLoading(false);
       })
-      .catch(error => {
-        Alert.alert('Error', 'No se pudieron cargar los tipos de evento');
+      .catch((error) => {
+        Alert.alert("Error", "No se pudieron cargar los tipos de evento");
         setLoading(false);
       });
   }, []);
 
   const handleSubmit = async () => {
     if (!userId) {
-      Alert.alert('Error', 'No se encontró el usuario autenticado');
+      Alert.alert("Error", "No se encontró el usuario autenticado");
       return;
     }
     try {
       const evento = {
         nombre_evento: nombre,
         descripcion_evento: descripcion,
-        fecha_evento: fecha.toISOString().split('T')[0],
+        fecha_evento: fecha.toISOString().split("T")[0],
         hora_inicio_evento: horaInicio.toTimeString().slice(0, 5),
         hora_termino_evento: horaTermino.toTimeString().slice(0, 5),
         lugar_evento: lugar,
         id_usuario: userId,
         id_tipo_evento: tipoEventoId,
       };
-      console.log('Evento a enviar:', evento);
+      console.log("Evento a enviar:", evento);
       await createEvento(evento);
-      Alert.alert('Éxito', 'Evento creado correctamente');
+      Alert.alert("Éxito", "Evento creado correctamente");
       if (onSuccess) onSuccess();
     } catch (error: any) {
-      console.error('Error al crear evento:', error);
-      Alert.alert('Error', `No se pudo crear el evento: ${error?.message || error}`);
+      console.error("Error al crear evento:", error);
+      Alert.alert(
+        "Error",
+        `No se pudo crear el evento: ${error?.message || error}`
+      );
     }
   };
 
@@ -76,7 +95,11 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+    <ScrollView
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+    >
       <Text style={styles.label}>Nombre del Evento</Text>
       <TextInput
         style={styles.input}
@@ -103,14 +126,17 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
       />
 
       <Text style={styles.label}>Fecha del Evento</Text>
-      <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.input}>
+      <TouchableOpacity
+        onPress={() => setShowDatePicker(true)}
+        style={styles.input}
+      >
         <Text>{fecha.toLocaleDateString()}</Text>
       </TouchableOpacity>
       {showDatePicker && (
         <DateTimePicker
           value={fecha}
           mode="date"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          display={Platform.OS === "ios" ? "spinner" : "default"}
           onChange={(_, selectedDate) => {
             setShowDatePicker(false);
             if (selectedDate) setFecha(selectedDate);
@@ -119,15 +145,23 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
       )}
 
       <Text style={styles.label}>Hora de Inicio</Text>
-      <TouchableOpacity onPress={() => setShowHoraInicio(true)} style={styles.input}>
-        <Text>{horaInicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+      <TouchableOpacity
+        onPress={() => setShowHoraInicio(true)}
+        style={styles.input}
+      >
+        <Text>
+          {horaInicio.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </Text>
       </TouchableOpacity>
       {showHoraInicio && (
         <DateTimePicker
           value={horaInicio}
           mode="time"
           is24Hour
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          display={Platform.OS === "ios" ? "spinner" : "default"}
           onChange={(_, selectedTime) => {
             setShowHoraInicio(false);
             if (selectedTime) setHoraInicio(selectedTime);
@@ -136,15 +170,23 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
       )}
 
       <Text style={styles.label}>Hora de Término</Text>
-      <TouchableOpacity onPress={() => setShowHoraTermino(true)} style={styles.input}>
-        <Text>{horaTermino.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+      <TouchableOpacity
+        onPress={() => setShowHoraTermino(true)}
+        style={styles.input}
+      >
+        <Text>
+          {horaTermino.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </Text>
       </TouchableOpacity>
       {showHoraTermino && (
         <DateTimePicker
           value={horaTermino}
           mode="time"
           is24Hour
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          display={Platform.OS === "ios" ? "spinner" : "default"}
           onChange={(_, selectedTime) => {
             setShowHoraTermino(false);
             if (selectedTime) setHoraTermino(selectedTime);
@@ -154,7 +196,7 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
 
       <Text style={styles.label}>Tipo de Evento</Text>
       <View style={styles.picker}>
-        {tiposEvento.map(tipo => (
+        {tiposEvento.map((tipo) => (
           <TouchableOpacity
             key={tipo.id}
             style={[
@@ -163,14 +205,27 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
             ]}
             onPress={() => setTipoEventoId(String(tipo.id))}
           >
-            <Text style={tipoEventoId === tipo.id ? styles.pickerTextSelected : styles.pickerText}>
+            <Text
+              style={
+                tipoEventoId === tipo.id
+                  ? styles.pickerTextSelected
+                  : styles.pickerText
+              }
+            >
               {tipo.nombre}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
-
-      <Button title="Crear Evento" onPress={handleSubmit} />
+      <View
+        style={{ height: 70, alignItems: "center", justifyContent: "center" }}
+      >
+        <ButtonProps
+          title="Crear Evento"
+          onPress={handleSubmit}
+          customStyle={styles.buttonPropsStyles}
+        />
+      </View>
     </ScrollView>
   );
 }
@@ -178,46 +233,56 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
 const styles = StyleSheet.create({
   container: {
     padding: 24,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 16,
     margin: 16,
     elevation: 2,
   },
   label: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 12,
     marginBottom: 4,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ff9800',
+    borderColor: "#ff9800",
     borderRadius: 8,
     padding: 10,
     marginBottom: 8,
-    backgroundColor: '#fff7e6',
+    backgroundColor: "#fff7e6",
   },
   picker: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     marginBottom: 16,
   },
   pickerItem: {
     padding: 8,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ff9800',
+    borderColor: "#ff9800",
     marginRight: 8,
     marginBottom: 8,
-    backgroundColor: '#fff7e6',
+    backgroundColor: "#fff7e6",
   },
   pickerItemSelected: {
-    backgroundColor: '#ff9800',
+    backgroundColor: "#ff9800",
   },
   pickerText: {
-    color: '#ff9800',
+    color: "#ff9800",
   },
   pickerTextSelected: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  buttonPropsStyles: {
+    width: 300,
+    backgroundColor: "#191013",
+    borderRadius: 30,
+    paddingVertical: 12,
+    height: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 8,
   },
 });
