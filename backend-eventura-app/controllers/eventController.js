@@ -10,7 +10,7 @@ const eventController = {
     conn = await pool.getConnection();
 
     const result = await conn.execute(
-      `SELECT id_evento, nombre_evento, TO_CHAR(fecha_evento, 'DD-MM-YYYY'), TO_CHAR(hora_inicio_evento, 'HH24:MI')
+      `SELECT id_evento, nombre_evento, descripcion_evento, TO_CHAR(fecha_evento, 'DD-MM-YYYY'), TO_CHAR(hora_inicio_evento, 'HH24:MI')
        FROM evento
        ORDER BY fecha_evento ASC`
     );
@@ -56,13 +56,14 @@ getEventsByUserId: async (req, res) => {
     // Ejecutamos la consulta con alias claros para facilitar el mapeo
     const result = await conn.execute(
       `SELECT 
-         id_evento, 
-         nombre_evento, 
-         TO_CHAR(fecha_evento, 'DD-MM-YYYY') AS fecha_formateada, 
-         TO_CHAR(hora_inicio_evento, 'HH24:MI') AS hora_formateada
-       FROM evento
-       WHERE id_usuario = :1
-       ORDER BY fecha_evento ASC`,
+        id_evento, 
+        nombre_evento, 
+        descripcion_evento,
+        TO_CHAR(fecha_evento, 'DD-MM-YYYY') AS fecha_formateada, 
+        TO_CHAR(hora_inicio_evento, 'HH24:MI') AS hora_formateada
+      FROM evento
+      WHERE id_usuario = :1
+      ORDER BY fecha_evento ASC`,
       [userId]
     );
 
@@ -70,8 +71,9 @@ getEventsByUserId: async (req, res) => {
     const eventos = result.rows.map((row) => ({
       id: row[0],
       titulo: row[1],
-      fecha: `${row[2]} a las ${row[3]}`,
-      imagen: 'https://via.placeholder.com/150', // Reemplaza si tienes una columna real de imagen
+      descripcion: row[2],     // Añadir este campo
+      fecha: `${row[3]} a las ${row[4]}`,
+      imagen: 'https://via.placeholder.com/150' // Reemplaza si tienes una columna real de imagen
     }));
 
     res.json(eventos);

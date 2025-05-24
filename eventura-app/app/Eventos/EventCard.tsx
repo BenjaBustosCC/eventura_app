@@ -5,11 +5,12 @@ type HomeCardProps = {
   nombre: string;
   fecha: string;
   imagen?: string;
+  descripcion: string;
   onEdit?: () => void;
   onDelete?: () => void;
 };
 
-export default function HomeCard({ nombre, fecha, imagen, onEdit, onDelete }: HomeCardProps) {
+export default function HomeCard({ nombre, fecha, imagen, descripcion, onEdit, onDelete }: HomeCardProps) {
   return (
     <View style={styles.card}>
       <View style={styles.row}>
@@ -20,13 +21,14 @@ export default function HomeCard({ nombre, fecha, imagen, onEdit, onDelete }: Ho
         />
         <View style={styles.info}>
           <Text style={styles.nombre}>{nombre}</Text>
+          <Text style={styles.descripcion}>{descripcion}</Text>
           <Text style={styles.fecha}>{fecha}</Text>
           <View style={styles.buttonRow}>
             <TouchableOpacity style={styles.editButton} onPress={onEdit}>
               <Text style={styles.buttonText}>Editar</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
-              <Text style={styles.buttonText}>Eliminar</Text>
+              <Text style={styles.buttonTextDelete}>Eliminar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -99,5 +101,15 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#ff9800',
     fontWeight: 'bold',
+  },
+  buttonTextDelete: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  descripcion: {
+    fontSize: 14,
+    color: '#fff',
+    marginBottom: 4,
+    textAlign: 'left',
   },
 });

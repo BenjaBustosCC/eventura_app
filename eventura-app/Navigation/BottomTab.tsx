@@ -43,16 +43,16 @@ export default function BottomTabNavigator({
         tabBarInactiveTintColor: "gray",
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Eventos" component={EventScreen} />
-      <Tab.Screen name="Añadir" component={AddScreen} />
-      <Tab.Screen name="Mapa" component={MapaScreen} />
-      <Tab.Screen name="Perfil">
+      <Tab.Screen name="Home" component={HomeScreen} options={{headerShown: false}}/>
+      <Tab.Screen name="Eventos" component={EventScreen} options={{headerShown: false}}/>
+      <Tab.Screen name="Añadir" component={AddScreen} options={{headerShown: false}}/>
+      <Tab.Screen name="Mapa" component={MapaScreen} options={{headerShown: false}}/>
+      <Tab.Screen name="Perfil" options={{headerShown: false}}>
         {(props) => (
           <ProfileScreen {...props} setIsAuthenticated={setIsAuthenticated} />
-        )}
+        )} 
       </Tab.Screen>
-      <Tab.Screen name="Gestión de Usuarios" component={UserManagement} />
+      <Tab.Screen name="Gestión de Usuarios" component={UserManagement} options={{headerShown: false}}/>
     </Tab.Navigator>
   );
 }

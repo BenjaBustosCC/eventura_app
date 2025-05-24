@@ -8,17 +8,24 @@ import {
   Platform,
   Alert,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { fetchTiposEvento, createEvento } from "../../services/eventService";
 import { authService } from "../../services/authService";
 import ButtonProps from "../../Components/Button";
+import {
+  SafeAreaInsetsContext,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 export default function AddEventScreen({
   onSuccess,
 }: {
   onSuccess?: () => void;
 }) {
+  const insets = useSafeAreaInsets();
+
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [lugar, setLugar] = useState("");
@@ -88,155 +95,167 @@ export default function AddEventScreen({
 
   if (loading || !userId) {
     return (
-      <View style={styles.container}>
-        <Text>Cargando tipos de evento...</Text>
+      <View style={styles.containerLoading}>
+        <ActivityIndicator size="large" color="#6200ee" />
       </View>
     );
   }
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
-    >
-      <Text style={styles.label}>Nombre del Evento</Text>
-      <TextInput
-        style={styles.input}
-        value={nombre}
-        onChangeText={setNombre}
-        placeholder="Nombre del evento"
-      />
+    <View style={{ paddingTop: insets.top, flex: 1 }}>
 
-      <Text style={styles.label}>Descripción</Text>
-      <TextInput
-        style={[styles.input, { height: 80 }]}
-        value={descripcion}
-        onChangeText={setDescripcion}
-        placeholder="Descripción del evento"
-        multiline
-      />
-
-      <Text style={styles.label}>Lugar</Text>
-      <TextInput
-        style={styles.input}
-        value={lugar}
-        onChangeText={setLugar}
-        placeholder="Lugar del evento"
-      />
-
-      <Text style={styles.label}>Fecha del Evento</Text>
-      <TouchableOpacity
-        onPress={() => setShowDatePicker(true)}
-        style={styles.input}
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <Text>{fecha.toLocaleDateString()}</Text>
-      </TouchableOpacity>
-      {showDatePicker && (
-        <DateTimePicker
-          value={fecha}
-          mode="date"
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          onChange={(_, selectedDate) => {
-            setShowDatePicker(false);
-            if (selectedDate) setFecha(selectedDate);
-          }}
-        />
-      )}
-
-      <Text style={styles.label}>Hora de Inicio</Text>
-      <TouchableOpacity
-        onPress={() => setShowHoraInicio(true)}
-        style={styles.input}
-      >
-        <Text>
-          {horaInicio.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+        <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 10 }}>
+          Crea un evento :3
         </Text>
-      </TouchableOpacity>
-      {showHoraInicio && (
-        <DateTimePicker
-          value={horaInicio}
-          mode="time"
-          is24Hour
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          onChange={(_, selectedTime) => {
-            setShowHoraInicio(false);
-            if (selectedTime) setHoraInicio(selectedTime);
-          }}
+        <Text style={styles.label}>Nombre del Evento</Text>
+        <TextInput
+          style={styles.input}
+          value={nombre}
+          onChangeText={setNombre}
+          placeholder="Nombre del evento"
         />
-      )}
 
-      <Text style={styles.label}>Hora de Término</Text>
-      <TouchableOpacity
-        onPress={() => setShowHoraTermino(true)}
-        style={styles.input}
-      >
-        <Text>
-          {horaTermino.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </Text>
-      </TouchableOpacity>
-      {showHoraTermino && (
-        <DateTimePicker
-          value={horaTermino}
-          mode="time"
-          is24Hour
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          onChange={(_, selectedTime) => {
-            setShowHoraTermino(false);
-            if (selectedTime) setHoraTermino(selectedTime);
-          }}
+        <Text style={styles.label}>Descripción</Text>
+        <TextInput
+          style={[styles.input, { height: 80 }]}
+          value={descripcion}
+          onChangeText={setDescripcion}
+          placeholder="Descripción del evento"
+          multiline
         />
-      )}
 
-      <Text style={styles.label}>Tipo de Evento</Text>
-      <View style={styles.picker}>
-        {tiposEvento.map((tipo) => (
-          <TouchableOpacity
-            key={tipo.id}
-            style={[
-              styles.pickerItem,
-              tipoEventoId === tipo.id && styles.pickerItemSelected,
-            ]}
-            onPress={() => setTipoEventoId(String(tipo.id))}
-          >
-            <Text
-              style={
-                tipoEventoId === tipo.id
-                  ? styles.pickerTextSelected
-                  : styles.pickerText
-              }
+        <Text style={styles.label}>Lugar</Text>
+        <TextInput
+          style={styles.input}
+          value={lugar}
+          onChangeText={setLugar}
+          placeholder="Lugar del evento"
+        />
+
+        <Text style={styles.label}>Fecha del Evento</Text>
+        <TouchableOpacity
+          onPress={() => setShowDatePicker(true)}
+          style={styles.input}
+        >
+          <Text>{fecha.toLocaleDateString()}</Text>
+        </TouchableOpacity>
+        {showDatePicker && (
+          <DateTimePicker
+            value={fecha}
+            mode="date"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={(_, selectedDate) => {
+              setShowDatePicker(false);
+              if (selectedDate) setFecha(selectedDate);
+            }}
+          />
+        )}
+
+        <Text style={styles.label}>Hora de Inicio</Text>
+        <TouchableOpacity
+          onPress={() => setShowHoraInicio(true)}
+          style={styles.input}
+        >
+          <Text>
+            {horaInicio.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </Text>
+        </TouchableOpacity>
+        {showHoraInicio && (
+          <DateTimePicker
+            value={horaInicio}
+            mode="time"
+            is24Hour
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={(_, selectedTime) => {
+              setShowHoraInicio(false);
+              if (selectedTime) setHoraInicio(selectedTime);
+            }}
+          />
+        )}
+
+        <Text style={styles.label}>Hora de Término</Text>
+        <TouchableOpacity
+          onPress={() => setShowHoraTermino(true)}
+          style={styles.input}
+        >
+          <Text>
+            {horaTermino.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </Text>
+        </TouchableOpacity>
+        {showHoraTermino && (
+          <DateTimePicker
+            value={horaTermino}
+            mode="time"
+            is24Hour
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={(_, selectedTime) => {
+              setShowHoraTermino(false);
+              if (selectedTime) setHoraTermino(selectedTime);
+            }}
+          />
+        )}
+
+        <Text style={styles.label}>Tipo de Evento</Text>
+        <View style={styles.picker}>
+          {tiposEvento.map((tipo) => (
+            <TouchableOpacity
+              key={tipo.id}
+              style={[
+                styles.pickerItem,
+                tipoEventoId === tipo.id && styles.pickerItemSelected,
+              ]}
+              onPress={() => setTipoEventoId(String(tipo.id))}
             >
-              {tipo.nombre}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <View
-        style={{ height: 70, alignItems: "center", justifyContent: "center" }}
-      >
-        <ButtonProps
-          title="Crear Evento"
-          onPress={handleSubmit}
-          customStyle={styles.buttonPropsStyles}
-        />
-      </View>
-    </ScrollView>
+              <Text
+                style={
+                  tipoEventoId === tipo.id
+                    ? styles.pickerTextSelected
+                    : styles.pickerText
+                }
+              >
+                {tipo.nombre}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <View
+          style={{ height: 70, alignItems: "center", justifyContent: "center" }}
+        >
+          <ButtonProps
+            title="Crear Evento"
+            onPress={handleSubmit}
+            customStyle={styles.buttonPropsStyles}
+          />
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 24,
+    flex: 1,
     backgroundColor: "#fff",
-    borderRadius: 16,
-    margin: 16,
-    elevation: 2,
+    width: "100%",
+    paddingHorizontal: 20,
+    justifyContent: "center",
+  },
+  containerLoading: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingHorizontal: 16,
+    justifyContent: "center",
   },
   label: {
     fontWeight: "bold",

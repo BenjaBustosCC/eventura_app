@@ -7,9 +7,9 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import ButtonProps from "../../Components/Button";
 import { authService } from "../../services/authService";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ProfileScreen({
   setIsAuthenticated,
@@ -47,9 +47,10 @@ export default function ProfileScreen({
     handleUserData();
   }, []);
 
+  const insets = useSafeAreaInsets();
   return (
     <ScrollView>
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.avatarContainer}>
           <Image
             source={require("../../assets/kumito.jpg")}

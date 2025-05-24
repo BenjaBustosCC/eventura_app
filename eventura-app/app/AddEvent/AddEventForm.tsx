@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Platform, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { fetchTiposEvento, createEvento } from '../../services/eventService';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type AddEventFormProps = {
   userId: number | string;
@@ -9,6 +10,7 @@ type AddEventFormProps = {
 };
 
 export default function AddEventForm({ userId, onSuccess }: AddEventFormProps) {
+  const insets = useSafeAreaInsets();
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [fecha, setFecha] = useState(new Date());
@@ -63,7 +65,7 @@ export default function AddEventForm({ userId, onSuccess }: AddEventFormProps) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <Text style={styles.label}>Nombre del Evento</Text>
       <TextInput
         style={styles.input}
