@@ -23,14 +23,14 @@ export default function SearchBar({
         <MaterialCommunityIcons
           name="magnify"
           size={24}
-          color="#b42e1f"
+          color="#650F0B"
           style={styles.btnSearch}
           
         />
         <TextInput
           style={styles.input}
           placeholder="Buscar eventos"
-          placeholderTextColor="#b42e1f"
+          placeholderTextColor="#650F0B"
           onChangeText={onSearch}
         />
       </View>
@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: "center",
     justifyContent: "center",
+    //backgroundColor: "#fff",
   },
   btnSearch: {
     marginRight: 8,
@@ -76,6 +77,7 @@ const styles = StyleSheet.create({
     height: 24,
     alignItems: "center",
     justifyContent: "center",
+    
   },
   input: {
     flex: 1,

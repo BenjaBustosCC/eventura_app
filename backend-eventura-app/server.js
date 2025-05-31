@@ -1,4 +1,5 @@
 const express = require("express");
+const oracledb = require("oracledb");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
@@ -30,3 +31,4 @@ app.use("/api/tipos-evento", eventTypeRoutes); // Usa las rutas de tipos de even
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
+

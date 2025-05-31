@@ -3,6 +3,8 @@ import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Platform, 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { fetchTiposEvento, createEvento } from '../../services/eventService';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import TextInputField from '../../Components/TextInputField';
+
 
 type AddEventFormProps = {
   userId: number | string;
@@ -67,7 +69,7 @@ export default function AddEventForm({ userId, onSuccess }: AddEventFormProps) {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <Text style={styles.label}>Nombre del Evento</Text>
-      <TextInput
+      <TextInputField //VER PQ NO SE UTILIZA EL COMPONENTE TextInputField
         style={styles.input}
         value={nombre}
         onChangeText={setNombre}

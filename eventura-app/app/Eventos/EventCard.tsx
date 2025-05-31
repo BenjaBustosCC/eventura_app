@@ -39,12 +39,11 @@ export default function HomeCard({ nombre, fecha, imagen, descripcion, onEdit, o
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#ff9800',
+    backgroundColor: '#FADAC9',
     borderRadius: 16,
     padding: 16,
     marginVertical: 12,
     width: 340,
-    alignItems: 'flex-start',
     elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -70,13 +69,13 @@ const styles = StyleSheet.create({
   nombre: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#650F0B',
     marginBottom: 4,
     textAlign: 'left',
   },
   fecha: {
     fontSize: 16,
-    color: '#fff',
+    color: '#650F0B',
     textAlign: 'left',
     marginBottom: 8,
   },
@@ -93,13 +92,13 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   deleteButton: {
-    backgroundColor: '#d32f2f',
+    backgroundColor: '#650F0B',
     paddingVertical: 6,
     paddingHorizontal: 16,
     borderRadius: 8,
   },
   buttonText: {
-    color: '#ff9800',
+    color: '#650F0B',
     fontWeight: 'bold',
   },
   buttonTextDelete: {
@@ -108,7 +107,7 @@ const styles = StyleSheet.create({
   },
   descripcion: {
     fontSize: 14,
-    color: '#fff',
+    color: '#650F0B',
     marginBottom: 4,
     textAlign: 'left',
   },

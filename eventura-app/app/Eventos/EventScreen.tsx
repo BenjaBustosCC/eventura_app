@@ -52,7 +52,7 @@ export default function EventScreen() {
   if (loading) {
     return (
       <View style={styles.containerLoading}>
-        <ActivityIndicator size="large" color="#6200ee" />
+        <ActivityIndicator size="large" color="#650F0B" />
       </View>
     );
   }
@@ -93,13 +93,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#ffff",
     borderColor: "red",
     borderWidth: 1,
   },
   containerLoading: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#ffff",
     paddingHorizontal: 16,
     justifyContent: "center",
   },
@@ -107,5 +107,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
+    color: "#650F0B",
   },
 });

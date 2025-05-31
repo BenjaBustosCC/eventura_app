@@ -14,10 +14,12 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { fetchTiposEvento, createEvento } from "../../services/eventService";
 import { authService } from "../../services/authService";
 import ButtonProps from "../../Components/Button";
+import TextInputProps from "../../Components/TextInputField";
 import {
   SafeAreaInsetsContext,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
+import TextInputField from "../../Components/TextInputField";
 
 export default function AddEventScreen({
   onSuccess,
@@ -96,24 +98,22 @@ export default function AddEventScreen({
   if (loading || !userId) {
     return (
       <View style={styles.containerLoading}>
-        <ActivityIndicator size="large" color="#6200ee" />
+        <ActivityIndicator size="large" color="#650F0B" />
       </View>
     );
   }
 
   return (
     <View style={{ paddingTop: insets.top, flex: 1 }}>
-
       <ScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 10 }}>
-          Crea un evento :3
-        </Text>
+        <Text style={styles.labelTitle}>Crea un evento</Text>
         <Text style={styles.label}>Nombre del Evento</Text>
-        <TextInput
+
+        <TextInputProps
           style={styles.input}
           value={nombre}
           onChangeText={setNombre}
@@ -121,7 +121,7 @@ export default function AddEventScreen({
         />
 
         <Text style={styles.label}>Descripción</Text>
-        <TextInput
+        <TextInputField //VER PQ NO SE UTILIZA EL COMPONENTE DE TEXTINPUTFIELD
           style={[styles.input, { height: 80 }]}
           value={descripcion}
           onChangeText={setDescripcion}
@@ -246,14 +246,14 @@ export default function AddEventScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#ffff",
     width: "100%",
     paddingHorizontal: 20,
     justifyContent: "center",
   },
   containerLoading: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#ffff",
     paddingHorizontal: 16,
     justifyContent: "center",
   },
@@ -261,14 +261,25 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: 12,
     marginBottom: 4,
+    color: "#650F0B",
+    fontSize: 16,
   },
+  labelTitle: {
+    fontWeight: "bold",
+    marginTop: 12,
+    marginBottom: 4,
+    color: "#650F0B",
+    fontSize: 24,
+    textAlign: "center",
+  },
+
   input: {
     borderWidth: 1,
-    borderColor: "#ff9800",
+    borderColor: "#650F0B",
     borderRadius: 8,
     padding: 10,
     marginBottom: 8,
-    backgroundColor: "#fff7e6",
+    backgroundColor: "#ffff",
   },
   picker: {
     flexDirection: "row",
@@ -279,16 +290,16 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#ff9800",
+    borderColor: "#650F0B",
     marginRight: 8,
     marginBottom: 8,
-    backgroundColor: "#fff7e6",
+    backgroundColor: "#FADAC9",
   },
   pickerItemSelected: {
-    backgroundColor: "#ff9800",
+    backgroundColor: "#650F0B",
   },
   pickerText: {
-    color: "#ff9800",
+    color: "#650F0B",
   },
   pickerTextSelected: {
     color: "#fff",
@@ -296,7 +307,7 @@ const styles = StyleSheet.create({
   },
   buttonPropsStyles: {
     width: 300,
-    backgroundColor: "#191013",
+    backgroundColor: "#650F0B",
     borderRadius: 30,
     paddingVertical: 12,
     height: 50,

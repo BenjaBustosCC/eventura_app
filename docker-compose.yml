@@ -1,0 +1,56 @@
+services:
+  eventura-db:
+    image: gvenzl/oracle-xe:21
+    container_name: eventura-db
+    ports:
+      - "1521:1521"
+      - "8080:8080"
+    environment:
+      ORACLE_PASSWORD: Eventura0705
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+    networks:
+      - eventura-net
+
+  eventura-backend:
+    build: ./backend-eventura-app
+    container_name: eventura-backend
+    ports:
+      - "8081:8081"
+    volumes:
+    - ./backend-eventura-app:/app
+    networks:
+      - eventura-net
+    environment:
+      - DB_HOST=adb.mx-queretaro-1.oraclecloud.com
+      - DB_USER=admin
+      - DB_PASSWORD=Eventura0705
+      - DB_PORT=1521
+      - DB_SERVICE=g55dd3bf034ee56_huvisv79mtzld6f9_high.adb.oraclecloud.com
+    depends_on:
+      - eventura-db
+
+  eventura-app:
+    build: ./eventura-app
+    container_name: eventura-expo
+    ports:
+      - "19000:19000"
+    volumes:
+      - ./eventura-app:/app
+      - /app/node_modules
+    networks:
+      - eventura-net
+    environment:
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
+    stdin_open: true
+    tty: true
+    command: yarn expo start --tunnel
+
+
+
+volumes:
+  oracle-data:
+
+networks:
+  eventura-net:
+    driver: bridge

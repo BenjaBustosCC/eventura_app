@@ -21,7 +21,7 @@ type Evento = {
 };
 
 export default function HomeScreen() {
-    const insets = useSafeAreaInsets();
+  const insets = useSafeAreaInsets();
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -51,7 +51,7 @@ export default function HomeScreen() {
   if (loading) {
     return (
       <View style={styles.containerLoading}>
-        <ActivityIndicator size="large" color="#6200ee" />
+        <ActivityIndicator size="large" color="#650F0B" />
       </View>
     );
   }
@@ -84,8 +84,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#fff",
     paddingHorizontal: 10,
-    borderColor: "red",
-    borderWidth: 1,
+    //borderColor: "red",
+    //borderWidth: 1,
   },
   containerLoading: {
     flex: 1,
