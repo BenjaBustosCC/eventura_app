@@ -27,6 +27,11 @@ app.use("/api/auth", authRoutes); // Usa las rutas de autenticación
 app.use("/api/eventos", eventRoutes);
 app.use("/api/tipos-evento", eventTypeRoutes); // Usa las rutas de tipos de eventos
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ta good' });
+});
+
 // Iniciar el servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
