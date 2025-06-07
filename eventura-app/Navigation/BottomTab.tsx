@@ -39,7 +39,7 @@ export default function BottomTabNavigator({
           // Puedes personalizar el color/tamaño aquí si quieres resaltar el botón de añadir
           return <Ionicons name={iconName} size={24} color={"#BB271A"} />;
         },
-        tabBarActiveTintColor: "#6200ee",
+        tabBarActiveTintColor: "#BB271A",
         tabBarInactiveTintColor: "gray",
       })}
     >

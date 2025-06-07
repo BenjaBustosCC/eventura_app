@@ -9,7 +9,7 @@ const eventTypeController = {
     try {
       conn = await pool.getConnection();
       const result = await conn.execute(
-        `SELECT id_tipo_evento, nombre_tipo_evento FROM tipo_evento ORDER BY nombre_tipo_evento ASC`
+        'SELECT id_tipo_evento, nombre_tipo_evento FROM tipo_evento ORDER BY nombre_tipo_evento ASC'
       );
       const tipos = result.rows.map(row => ({
         id: row[0],
@@ -31,8 +31,8 @@ const eventTypeController = {
     try {
       const result = await conn.query(
         `INSERT INTO tipo_evento (nombre_tipo_evento) 
-         VALUES (:nombre_tipo_evento) 
-         RETURNING id_tipo_evento, nombre_tipo_evento INTO :out`,
+        VALUES (:nombre_tipo_evento) 
+        RETURNING id_tipo_evento, nombre_tipo_evento INTO :out`,
         { nombre_tipo_evento },
         { autoCommit: true }
       );

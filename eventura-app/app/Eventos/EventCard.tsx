@@ -15,7 +15,7 @@ export default function HomeCard({ nombre, fecha, imagen, descripcion, onEdit, o
     <View style={styles.card}>
       <View style={styles.row}>
         <Image
-          source={{ uri: imagen || 'https://via.placeholder.com/100x100/ff9800/ffffff?text=Evento' }}
+          defaultSource={require("../../assets/default-image.png")} // opcional si usas imagen local
           style={styles.imagen}
           resizeMode="cover"
         />
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   deleteButton: {
-    backgroundColor: '#d32f2f',
+    backgroundColor: 'black',
     paddingVertical: 6,
     paddingHorizontal: 16,
     borderRadius: 8,

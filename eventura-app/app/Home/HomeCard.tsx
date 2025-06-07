@@ -11,7 +11,8 @@ export default function HomeCard({ nombre, fecha, imagen }: HomeCardProps) {
   return (
     <View style={styles.card}>
       <Image
-        source={{ uri: imagen || 'https://via.placeholder.com/200x120/ff9800/ffffff?text=Evento' }} // Placeholder image
+        //source={{ uri: imagen || 'https://placehold.co/200x120/ff9800/ffffff?text=Evento' }}
+        defaultSource={require("../../assets/default-image.png")}
         style={styles.imagen}
         resizeMode="cover"
       />

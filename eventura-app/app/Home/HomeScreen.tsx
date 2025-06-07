@@ -11,6 +11,8 @@ import HomeCard from "./HomeCard";
 import { useFocusEffect } from "@react-navigation/native";
 import SearchBar from "../../Components/SearchBar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import CompassBtn from "../../Components/CompassBtn";
+import ItineraryModal from "../ItineraryAssistant/ItineraryModal";
 
 type Evento = {
   id_evento?: number | string;
@@ -21,16 +23,14 @@ type Evento = {
 };
 
 export default function HomeScreen() {
-    const insets = useSafeAreaInsets();
+  const insets = useSafeAreaInsets();
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [modalVisible, setModalVisible] = useState(false);
+
   const handleSearch = (text: string) => {
     console.log("Texto de búsqueda:", text);
-  };
-
-  const handleBrujulaPress = () => {
-    console.log("Brujula presionada");
   };
 
   useFocusEffect(
@@ -57,7 +57,22 @@ export default function HomeScreen() {
   }
   return (
     <View style={{ flex: 1, backgroundColor: "#fff", paddingTop: insets.top }}>
-      <SearchBar onSearch={handleSearch} onBrujulaPress={handleBrujulaPress} />
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          paddingRight: 70,
+          paddingLeft: 10,
+        }}
+      >
+        <SearchBar onSearch={handleSearch} />
+        <CompassBtn onBrujulaPress={() => setModalVisible(true)} />
+      </View>
+
+      {/* Modal de ChatGPT */}
+      <ItineraryModal visible={modalVisible} onClose={() => setModalVisible(false)} />
+
+
       <View style={styles.container}>
         <FlatList
           data={eventos}

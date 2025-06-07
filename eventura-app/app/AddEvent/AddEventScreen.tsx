@@ -83,6 +83,14 @@ export default function AddEventScreen({
       console.log("Evento a enviar:", evento);
       await createEvento(evento);
       Alert.alert("Éxito", "Evento creado correctamente");
+      setNombre("");
+      setDescripcion("");
+      setLugar("");
+      setFecha(new Date());
+      setHoraInicio(new Date());
+      setHoraTermino(new Date());
+      setTipoEventoId(tiposEvento[0]?.id?.toString() || "");
+      console.log("Formulario reseteado");
       if (onSuccess) onSuccess();
     } catch (error: any) {
       console.error("Error al crear evento:", error);
@@ -103,7 +111,6 @@ export default function AddEventScreen({
 
   return (
     <View style={{ paddingTop: insets.top, flex: 1 }}>
-
       <ScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
