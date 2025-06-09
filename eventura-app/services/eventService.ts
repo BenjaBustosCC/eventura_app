@@ -49,13 +49,7 @@ export async function deleteEvento(id: number | string) {
   return true;
 }
 
-export async function deleteEvento(id: number | string) {
-  const response = await fetch(`${API_URL}/eventos/eventos/${id}`, {
-    method: 'DELETE',
-  });
-  if (!response.ok) throw new Error('Error al eliminar el evento');
-  return response.json();
-}
+
 
 export async function updateEvento(id: number | string, evento: {
   nombre_evento: string;

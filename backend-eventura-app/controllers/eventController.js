@@ -14,6 +14,16 @@ getAllEvents: async (req, res) => {
       `SELECT id_evento, nombre_evento, TO_CHAR(fecha_evento, 'DD-MM-YYYY'), TO_CHAR(hora_inicio_evento, 'HH24:MI'), imagen FROM evento ORDER BY fecha_evento ASC`
     );
 
+    // Función auxiliar para convertir LOB a Buffer
+    const lobToBuffer = (lob) => {
+      return new Promise((resolve, reject) => {
+        const chunks = [];
+        lob.on('data', (chunk) => chunks.push(chunk));
+        lob.on('end', () => resolve(Buffer.concat(chunks)));
+        lob.on('error', reject);
+      });
+    };
+
     const eventos = await Promise.all(result.rows.map(async (row) => {
       const [id, nombre, fecha, hora, imagenLob] = row;
 
@@ -22,8 +32,13 @@ getAllEvents: async (req, res) => {
         if (Buffer.isBuffer(imagenLob)) {
           imagenBase64 = `data:image/jpeg;base64,${imagenLob.toString('base64')}`;
         } else if (typeof imagenLob === 'object' && typeof imagenLob.on === 'function') {
-          const buffer = await lobToBuffer(imagenLob);
-          imagenBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+          // Es un LOB, conviértelo a buffer
+          try {
+            const buffer = await lobToBuffer(imagenLob);
+            imagenBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+          } catch (err) {
+            console.error('Error al convertir LOB a buffer:', err);
+          }
         }
       }
 
