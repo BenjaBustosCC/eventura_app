@@ -3,15 +3,39 @@ import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'rea
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons'; // Asegúrate de tener esto instalado
 
+type Evento = {
+  imagen?: string;
+  nombre?: string;
+  titulo?: string;
+  fecha?: string;
+  fecha_evento?: string;
+  lugar_evento?: string;
+  lugar?: string;
+  descripcion_evento?: string;
+  descripcion?: string;
+  hora_inicio_evento?: string;
+  hora_inicio?: string;
+  hora_termino_evento?: string;
+  hora_termino?: string;
+  tipo_evento_nombre?: string;
+  tipo?: string;
+  id_tipo_evento?: string;
+};
+
+type RouteParams = {
+  evento?: Evento;
+};
+
 export default function DetalleEventoScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { evento } = route.params || {};
+  // @ts-ignore
+  const { evento } = (route as any).params || {};
 
   if (!evento) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>No se encontró información del evento.</Text>
+        <Text style={styles.titulo}>No se encontró información del evento.</Text>
       </View>
     );
   }

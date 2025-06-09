@@ -57,7 +57,11 @@ export default function HomeScreen() {
             nombre={item.nombre || item.titulo || 'Evento sin nombre'}
             fecha={item.fecha || ''}
             imagen={item.imagen}
-            onPress={() => handlePress(item.id_evento)}
+            onPress={() => {
+              if (item.id_evento !== undefined) {
+                handlePress(item.id_evento);
+              }
+            }}
           />
         )}
         ListEmptyComponent={<Text>No hay eventos disponibles.</Text>}

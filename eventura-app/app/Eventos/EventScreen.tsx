@@ -1,28 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
+  StyleSheet,
   Text,
   FlatList,
   ActivityIndicator,
   Alert,
+  Modal, TouchableOpacity
 } from "react-native";
 import EventCard from "./EventCard";
 import { fetchEventosByUserId, deleteEvento } from "../../services/eventService";
 import { authService } from "../../services/authService";
-import styles from './styles';
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../../types';
-import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, Modal, TouchableOpacity } from 'react-native';
-import EventCard from './EventCard';
-import { fetchEventosByUserId, deleteEvento } from '../../services/eventService';
-import { authService } from '../../services/authService';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 
@@ -37,7 +29,7 @@ type Evento = {
   imagen?: string;
 };
 
-type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+type NavigationProp = StackNavigationProp<RootStackParamList, 'EditEventScreen'>;
 
 type RootStackParamList = {
   EditEventScreen: { evento: Evento };
@@ -52,8 +44,6 @@ export default function EventScreen() {
   const [loading, setLoading] = useState(true);
   const [eventoAEliminar, setEventoAEliminar] = useState<Evento | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   const loadEventos = async () => {
     setLoading(true);
@@ -73,28 +63,6 @@ export default function EventScreen() {
     loadEventos();
   }, []);
 
-  const handleDelete = (id: string) => {
-    Alert.alert(
-      "¿Eliminar evento?",
-      "Esta acción no se puede deshacer.",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Eliminar",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteEvento(id);
-              setEventos((prev) => prev.filter((e) => e.id_evento?.toString() !== id));
-            } catch (error) {
-              console.error("Error al eliminar:", error);
-              Alert.alert("Error", "No se pudo eliminar el evento.");
-            }
-          },
-        },
-      ]
-    );
-  };
   useFocusEffect(
     useCallback(() => {
       setLoading(true);
@@ -149,84 +117,52 @@ export default function EventScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: "#fff", paddingTop: insets.top }}>
       <SafeAreaView style={styles.container}>
-        <View>
-          <Text style={styles.title}>Tus eventos</Text>
-        </View>
+        <Text style={styles.title}>Tus eventos</Text>
         <FlatList
           data={eventos}
-          keyExtractor={(item) =>
-            item.id_evento?.toString() || Math.random().toString()
-          }
+          keyExtractor={item => item.id_evento?.toString() || Math.random().toString()}
           renderItem={({ item }) => (
             <EventCard
-              id={item.id_evento?.toString() || ""}
-              nombre={
-                item.titulo ||
-                item.nombre_evento ||
-                item.nombre ||
-                "Evento sin nombre"
-              }
-              fecha={item.fecha || ""}
+              nombre={item.titulo || item.nombre_evento || item.nombre || 'Evento sin nombre'}
+              fecha={item.fecha || ''}
               imagen={item.imagen}
-              descripcion={item.descripcion || "Descripción no disponible"}
-              onDelete={() => handleDelete(item.id_evento?.toString() || "")}
-              onPress={() =>
-                navigation.navigate("EditarEvento", {
-                  id: item.id_evento?.toString() || "",
-                })
-              }
-            />
+              onDelete={() => handleDelete(item)}
+              onEdit={() => navigation.navigate('EditEventScreen', { evento: item })}
+              descripcion={item.descripcion || "Descripción no disponible"} id={""}            />
           )}
-          showsVerticalScrollIndicator={false}
           ListEmptyComponent={<Text>No tienes eventos.</Text>}
         />
-      </SafeAreaView>
-    <View style={styles.container}>
-      <Text style={styles.title}>Tus eventos</Text>
-      <FlatList
-        data={eventos}
-        keyExtractor={item => item.id_evento?.toString() || Math.random().toString()}
-        renderItem={({ item }) => (
-          <EventCard
-            nombre={item.titulo || item.nombre_evento || item.nombre || 'Evento sin nombre'}
-            fecha={item.fecha || ''}
-            imagen={item.imagen}
-            onDelete={() => handleDelete(item)}
-            onEdit={() => navigation.navigate('EditEventScreen', { evento: item })} descripcion={''}          />
-        )}
-        ListEmptyComponent={<Text>No tienes eventos.</Text>}
-      />
-
-      {/* Modal de confirmación */}
-      <Modal
-        visible={modalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={{ fontSize: 18, marginBottom: 16 }}>
-              ¿Seguro que deseas eliminar este evento?
-            </Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-              <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: '#d32f2f' }]}
-                onPress={confirmarEliminacion}
-                activeOpacity={0.7}
-              >
-                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Eliminar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: '#ff9800', marginLeft: 8 }]}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Cancelar</Text>
-              </TouchableOpacity>
+        {/* Modal de confirmación */}
+        <Modal
+          visible={modalVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={{ fontSize: 18, marginBottom: 16 }}>
+                ¿Seguro que deseas eliminar este evento?
+              </Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+                <TouchableOpacity
+                  style={[styles.modalButton, { backgroundColor: '#d32f2f' }]}
+                  onPress={confirmarEliminacion}
+                  activeOpacity={0.7}
+                >
+                  <Text style={{ color: '#fff', fontWeight: 'bold' }}>Eliminar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.modalButton, { backgroundColor: '#ff9800', marginLeft: 8 }]}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text style={{ color: '#fff', fontWeight: 'bold' }}>Cancelar</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      </SafeAreaView>
     </View>
   );
 }
