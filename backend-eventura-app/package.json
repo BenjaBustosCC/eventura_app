@@ -18,6 +18,8 @@
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.1",
-    "oracledb": "^6.8.0"
+    "oracledb": "^6.8.0",
+    "react-native-gesture-handler": "^2.25.0",
+    "react-native-google-places-autocomplete": "^2.5.7"
   }
 }

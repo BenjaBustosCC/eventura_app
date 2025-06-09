@@ -1,16 +1,26 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
+import styles from './styles';
 
-type HomeCardProps = {
+type EventCardProps = {
+  id: string;
   nombre: string;
   fecha: string;
   imagen?: string;
   descripcion: string;
-  onEdit?: () => void;
   onDelete?: () => void;
+  onPress?: () => void; // ✅ Nueva prop para manejar navegación desde el padre
 };
 
-export default function HomeCard({ nombre, fecha, imagen, descripcion, onEdit, onDelete }: HomeCardProps) {
+export default function EventCard({
+  id,
+  nombre,
+  fecha,
+  imagen,
+  descripcion,
+  onDelete,
+  onPress,
+}: EventCardProps) {
   return (
     <View style={styles.card}>
       <View style={styles.row}>
@@ -24,7 +34,7 @@ export default function HomeCard({ nombre, fecha, imagen, descripcion, onEdit, o
           <Text style={styles.descripcion}>{descripcion}</Text>
           <Text style={styles.fecha}>{fecha}</Text>
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.editButton} onPress={onEdit}>
+            <TouchableOpacity style={styles.editButton} onPress={onPress}>
               <Text style={styles.buttonText}>Editar</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>

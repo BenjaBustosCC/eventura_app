@@ -5,8 +5,8 @@ export type RootStackParamList = {
     Login: undefined;
     Home: undefined;
     Register: undefined;
+    EditarEvento: { id: string };
+    HomeTabs: undefined;
     EventScreen: undefined;
     DetalleEventoScreen: undefined;
 }
-
-

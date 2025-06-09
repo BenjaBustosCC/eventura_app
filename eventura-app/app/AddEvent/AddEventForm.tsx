@@ -1,9 +1,76 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Platform, ScrollView, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Platform, Alert, ScrollView, Image } from 'react-native';
+
+
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { fetchTiposEvento, createEvento } from '../../services/eventService';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+
+type AddEventFormProps = {
+  userId: number | string;
+  onSuccess?: () => void;
+};
 import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
 
+export default function AddEventForm({ userId, onSuccess }: AddEventFormProps) {
+  const insets = useSafeAreaInsets();
+  const [nombre, setNombre] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+  const [fecha, setFecha] = useState(new Date());
+  const [horaInicio, setHoraInicio] = useState(new Date());
+  const [horaTermino, setHoraTermino] = useState(new Date());
+  const [tipoEventoId, setTipoEventoId] = useState('');
+  const [tiposEvento, setTiposEvento] = useState<{ id: number | string; nombre: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showHoraInicio, setShowHoraInicio] = useState(false);
+  const [showHoraTermino, setShowHoraTermino] = useState(false);
+
+  const [lugarEvento, setLugarEvento] = useState('');
+  const [latitud, setLatitud] = useState<number | null>(null);
+  const [longitud, setLongitud] = useState<number | null>(null);
+
+  const googleRef = useRef<any>(null);
+
+  useEffect(() => {
+    fetchTiposEvento()
+      .then(data => {
+        setTiposEvento(data);
+        setTipoEventoId(data[0]?.id || '');
+        setLoading(false);
+      })
+      .catch(error => {
+        Alert.alert('Error', 'No se pudieron cargar los tipos de evento');
+        setLoading(false);
+      });
+  }, []);
+
+  const handleSubmit = async () => {
+    if (!lugarEvento || latitud === null || longitud === null) {
+      Alert.alert('Error', 'Debes seleccionar un lugar válido');
+      return;
+    }
+
+    try {
+      await createEvento({
+        nombre_evento: nombre,
+        descripcion_evento: descripcion,
+        fecha_evento: fecha.toISOString().split('T')[0],
+        hora_inicio_evento: horaInicio.toTimeString().slice(0, 5),
+        hora_termino_evento: horaTermino.toTimeString().slice(0, 5),
+        lugar_evento: lugarEvento,
+        latitud,
+        longitud,
+        id_usuario: userId,
+        id_tipo_evento: tipoEventoId,
+      });
+      Alert.alert('Éxito', 'Evento creado correctamente');
+      if (onSuccess) onSuccess();
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo crear el evento');
 export default function AddEventForm({
   nombre, setNombre,
   descripcion, setDescripcion,
@@ -60,6 +127,28 @@ export default function AddEventForm({
         onChangeText={setDescripcion}
         placeholder="Descripción del evento"
         multiline
+      />
+
+      <Text style={styles.label}>Lugar del Evento</Text>
+      <GooglePlacesAutocomplete
+        ref={googleRef}
+        placeholder="Buscar dirección"
+        fetchDetails={true}
+        onPress={(data, details = null) => {
+          setLugarEvento(data.description);
+          if (details?.geometry?.location) {
+            setLatitud(details.geometry.location.lat);
+            setLongitud(details.geometry.location.lng);
+          }
+        }}
+        query={{
+          key: 'AIzaSyD6w_NILALZTacu5qTPC2n0qUmI4isCUog',
+          language: 'es',
+        }}
+        styles={{
+          textInput: styles.input,
+          listView: { backgroundColor: '#fff' },
+        }}
       />
 
       <Text style={styles.label}>Lugar</Text>
@@ -140,6 +229,21 @@ export default function AddEventForm({
       )}
 
       <Text style={styles.label}>Tipo de Evento</Text>
+      <View style={styles.picker}>
+        {tiposEvento.map(tipo => (
+          <TouchableOpacity
+            key={tipo.id}
+            style={[
+              styles.pickerItem,
+              tipoEventoId === tipo.id && styles.pickerItemSelected,
+            ]}
+            onPress={() => setTipoEventoId(String(tipo.id))}
+          >
+            <Text style={tipoEventoId === tipo.id ? styles.pickerTextSelected : styles.pickerText}>
+              {tipo.nombre}
+            </Text>
+          </TouchableOpacity>
+        ))}
       <View style={styles.pickerContainer}>
         <Picker
           selectedValue={tipoEventoId}

@@ -1,15 +1,18 @@
 {
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.1.2",
-    "bcryptjs": "^3.0.2",
-    "expo": "^53.0.10",
+    "@react-native-masked-view/masked-view": "^0.3.2",
+    "axios": "^1.9.0",
+    "expo-location": "~18.1.5",
+    "react-native-gesture-handler": "~2.24.0",
+    "react-native-get-random-values": "^1.11.0",
+    "react-native-google-places-autocomplete": "^2.5.7",
+    "react-native-maps": "^1.20.1",
+    "react-native-reanimated": "^3.18.0",
     "react-native-safe-area-context": "^5.4.1",
-    "react-dom": "19.0.0",
-    "react-native-web": "^0.20.0",
-    "@expo/metro-runtime": "~5.0.4"
+    "react-native-screens": "^4.11.1"
   },
   "devDependencies": {
-    "typescript": "~5.8.3",
-    "@types/react": "~19.0.10"
+    "@types/axios": "^0.9.36"
   }
 }
