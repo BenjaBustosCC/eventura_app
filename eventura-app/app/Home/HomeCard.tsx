@@ -30,10 +30,10 @@ export default function HomeCard({ nombre, fecha, imagen, onPress }: HomeCardPro
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#ff9800',
+    backgroundColor: '#BB271A',
     borderRadius: 16,
     padding: 24,
-    marginVertical: 12,
+    marginVertical: 8,
     width: 340,
     height: 340,
     alignItems: 'center',

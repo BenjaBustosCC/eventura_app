@@ -7,10 +7,12 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 
 type Evento = {
+  descripcion: string;
   id_evento?: number | string;
   nombre?: string;
   titulo?: string;
   nombre_evento?: string;
+  descripcion_evento?: string;
   fecha?: string;
   imagen?: string;
 };
@@ -21,6 +23,8 @@ type RootStackParamList = {
 };
 
 export default function EventScreen() {
+  const insets = useSafeAreaInsets();
+
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [loading, setLoading] = useState(true);
   const [eventoAEliminar, setEventoAEliminar] = useState<Evento | null>(null);
@@ -75,8 +79,8 @@ export default function EventScreen() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#ff9800" />
+      <View style={styles.containerLoading}>
+        <ActivityIndicator size="large" color="#6200ee" />
       </View>
     );
   }
@@ -136,9 +140,16 @@ export default function EventScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderColor: "red",
+    borderWidth: 1,
+  },
+  containerLoading: {
+    flex: 1,
+    backgroundColor: "#fff",
     paddingHorizontal: 16,
-    paddingTop: 32,
+    justifyContent: "center",
   },
   title: {
     fontSize: 24,

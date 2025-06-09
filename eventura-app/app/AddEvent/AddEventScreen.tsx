@@ -1,18 +1,46 @@
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+  Alert,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { fetchTiposEvento, createEvento } from "../../services/eventService";
+import { authService } from "../../services/authService";
+import ButtonProps from "../../Components/Button";
+import {
+  SafeAreaInsetsContext,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import React, { useState, useEffect } from 'react';
 import { Alert } from 'react-native';
 import { fetchTiposEvento, createEvento } from '../../services/eventService';
 import { authService } from '../../services/authService';
 import AddEventForm from './AddEventForm';
 
-export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }) {
-  const [nombre, setNombre] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [lugar, setLugar] = useState('');
+export default function AddEventScreen({
+  onSuccess,
+}: {
+  onSuccess?: () => void;
+}) {
+  const insets = useSafeAreaInsets();
+
+  const [nombre, setNombre] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [lugar, setLugar] = useState("");
   const [fecha, setFecha] = useState(new Date());
   const [horaInicio, setHoraInicio] = useState(new Date());
   const [horaTermino, setHoraTermino] = useState(new Date());
-  const [tipoEventoId, setTipoEventoId] = useState('');
-  const [tiposEvento, setTiposEvento] = useState<{ id: number | string; nombre: string }[]>([]);
+  const [tipoEventoId, setTipoEventoId] = useState("");
+  const [tiposEvento, setTiposEvento] = useState<
+    { id: number | string; nombre: string }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<number | string | null>(null);
 
@@ -24,34 +52,34 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
   const [imagen, setImagen] = useState<string>('');
 
   useEffect(() => {
-    authService.getCurrentUser().then(user => {
+    authService.getCurrentUser().then((user) => {
       if (user && user.id) setUserId(user.id);
     });
   }, []);
 
   useEffect(() => {
     fetchTiposEvento()
-      .then(data => {
+      .then((data) => {
         setTiposEvento(data);
-        setTipoEventoId(data[0]?.id || '');
+        setTipoEventoId(data[0]?.id || "");
         setLoading(false);
       })
-      .catch(error => {
-        Alert.alert('Error', 'No se pudieron cargar los tipos de evento');
+      .catch((error) => {
+        Alert.alert("Error", "No se pudieron cargar los tipos de evento");
         setLoading(false);
       });
   }, []);
 
   const handleSubmit = async () => {
     if (!userId) {
-      Alert.alert('Error', 'No se encontró el usuario autenticado');
+      Alert.alert("Error", "No se encontró el usuario autenticado");
       return;
     }
     try {
       const evento = {
         nombre_evento: nombre,
         descripcion_evento: descripcion,
-        fecha_evento: fecha.toISOString().split('T')[0],
+        fecha_evento: fecha.toISOString().split("T")[0],
         hora_inicio_evento: horaInicio.toTimeString().slice(0, 5),
         hora_termino_evento: horaTermino.toTimeString().slice(0, 5),
         lugar_evento: lugar,
@@ -60,7 +88,15 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
         imagen, // <-- agrega la imagen base64 aquí
       };
       await createEvento(evento);
-      Alert.alert('Éxito', 'Evento creado correctamente');
+      Alert.alert("Éxito", "Evento creado correctamente");
+      setNombre("");
+      setDescripcion("");
+      setLugar("");
+      setFecha(new Date());
+      setHoraInicio(new Date());
+      setHoraTermino(new Date());
+      setTipoEventoId(tiposEvento[0]?.id?.toString() || "");
+      console.log("Formulario reseteado");
       if (onSuccess) onSuccess();
     } catch (error: any) {
       Alert.alert('Error', `No se pudo crear el evento: ${error?.message || error}`);

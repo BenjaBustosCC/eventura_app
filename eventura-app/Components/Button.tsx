@@ -4,11 +4,12 @@ import { Pressable, Text, StyleSheet } from 'react-native';
 type ButtonProps = {
   onPress: () => void;
   title: string;
+  customStyle?: object;
 };
 
-export default function Button({ onPress, title }: ButtonProps) {
+export default function Button({ onPress, title, customStyle }: ButtonProps) {
   return (
-    <Pressable onPress={onPress} style={styles.button}>
+    <Pressable onPress={onPress} style={customStyle || styles.button}>
       <Text style={styles.text}>{title}</Text>
     </Pressable>
   );

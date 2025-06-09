@@ -71,14 +71,17 @@ export default function AddEventForm({
       />
 
       <Text style={styles.label}>Fecha del Evento</Text>
-      <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.input}>
+      <TouchableOpacity
+        onPress={() => setShowDatePicker(true)}
+        style={styles.input}
+      >
         <Text>{fecha.toLocaleDateString()}</Text>
       </TouchableOpacity>
       {showDatePicker && (
         <DateTimePicker
           value={fecha}
           mode="date"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          display={Platform.OS === "ios" ? "spinner" : "default"}
           onChange={(_, selectedDate) => {
             setShowDatePicker(false);
             if (selectedDate) setFecha(selectedDate);
@@ -87,15 +90,23 @@ export default function AddEventForm({
       )}
 
       <Text style={styles.label}>Hora de Inicio</Text>
-      <TouchableOpacity onPress={() => setShowHoraInicio(true)} style={styles.input}>
-        <Text>{horaInicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+      <TouchableOpacity
+        onPress={() => setShowHoraInicio(true)}
+        style={styles.input}
+      >
+        <Text>
+          {horaInicio.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </Text>
       </TouchableOpacity>
       {showHoraInicio && (
         <DateTimePicker
           value={horaInicio}
           mode="time"
           is24Hour
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          display={Platform.OS === "ios" ? "spinner" : "default"}
           onChange={(_, selectedTime) => {
             setShowHoraInicio(false);
             if (selectedTime) setHoraInicio(selectedTime);
@@ -104,15 +115,23 @@ export default function AddEventForm({
       )}
 
       <Text style={styles.label}>Hora de Término</Text>
-      <TouchableOpacity onPress={() => setShowHoraTermino(true)} style={styles.input}>
-        <Text>{horaTermino.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+      <TouchableOpacity
+        onPress={() => setShowHoraTermino(true)}
+        style={styles.input}
+      >
+        <Text>
+          {horaTermino.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </Text>
       </TouchableOpacity>
       {showHoraTermino && (
         <DateTimePicker
           value={horaTermino}
           mode="time"
           is24Hour
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          display={Platform.OS === "ios" ? "spinner" : "default"}
           onChange={(_, selectedTime) => {
             setShowHoraTermino(false);
             if (selectedTime) setHoraTermino(selectedTime);
@@ -154,23 +173,23 @@ export default function AddEventForm({
 const styles = StyleSheet.create({
   container: {
     padding: 24,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 16,
     margin: 16,
     elevation: 2,
   },
   label: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 12,
     marginBottom: 4,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ff9800',
+    borderColor: "#ff9800",
     borderRadius: 8,
     padding: 10,
     marginBottom: 8,
-    backgroundColor: '#fff7e6',
+    backgroundColor: "#fff7e6",
   },
   pickerContainer: {
     borderWidth: 1,
@@ -190,7 +209,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,
-    backgroundColor: '#fff7e6',
+    backgroundColor: "#fff7e6",
   },
   imagePreview: {
     width: 120,

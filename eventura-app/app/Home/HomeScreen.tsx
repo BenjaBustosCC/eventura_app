@@ -29,11 +29,11 @@ export default function HomeScreen() {
     React.useCallback(() => {
       setLoading(true);
       fetchEventos()
-        .then(data => {
+        .then((data) => {
           setEventos(data);
           setLoading(false);
         })
-        .catch(error => {
+        .catch((error) => {
           console.error(error);
           setLoading(false);
         });
@@ -42,12 +42,11 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <View style={styles.containerLoading}>
         <ActivityIndicator size="large" color="#6200ee" />
       </View>
     );
   }
-
   return (
     <View style={styles.container}>
       <FlatList
@@ -70,14 +69,21 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    alignItems: "center",
+    backgroundColor: "#fff",
+    paddingHorizontal: 10,
+    borderColor: "red",
+    borderWidth: 1,
+  },
+  containerLoading: {
+    flex: 1,
+    backgroundColor: "#fff",
     paddingHorizontal: 16,
-    paddingTop: 32,
+    justifyContent: "center",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginVertical: 16,
   },
 });

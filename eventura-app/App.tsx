@@ -38,7 +38,12 @@ export default function App() {
           // Pantallas de autenticación (sin tabs)
           <>
             <Stack.Screen name="Login">
-              {(props) => <LoginScreen {...props} setIsAuthenticated={setIsAuthenticated} />}
+              {(props) => (
+                <LoginScreen
+                  {...props}
+                  setIsAuthenticated={setIsAuthenticated}
+                />
+              )}
             </Stack.Screen>
             <Stack.Screen name="Register" component={RegisterScreen} />
           </>
@@ -59,8 +64,8 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
