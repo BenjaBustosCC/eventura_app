@@ -1,6 +1,18 @@
 {
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.1.2",
-    "react-native-safe-area-context": "^5.4.1"
+    "@react-native-masked-view/masked-view": "^0.3.2",
+    "axios": "^1.9.0",
+    "expo-location": "~18.1.5",
+    "react-native-gesture-handler": "~2.24.0",
+    "react-native-get-random-values": "^1.11.0",
+    "react-native-google-places-autocomplete": "^2.5.7",
+    "react-native-maps": "^1.20.1",
+    "react-native-reanimated": "^3.18.0",
+    "react-native-safe-area-context": "^5.4.1",
+    "react-native-screens": "^4.11.1"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.9.36"
   }
 }

@@ -172,14 +172,29 @@ getEventsByUserId: async (req, res) => {
 
   // eliminar evento
   deleteEvent: async (req, res) => {
+    let conn;
     const { id } = req.params;
+
     try {
-      const result = await db.query('DELETE FROM evento WHERE id_evento = $1 RETURNING *', [id]);
-      if (result.rows.length === 0) {
+      conn = await pool.getConnection();
+
+      const result = await conn.execute(
+        `DELETE FROM evento WHERE id_evento = :1`, // parámetro posicional
+        [parseInt(id)], // array de parámetros, orden importa
+        { autoCommit: true }
+      );
+
+      if (result.rowsAffected === 0) {
+        await conn.close();
         return res.status(404).json({ message: 'Evento no encontrado' });
       }
+
+      await conn.close();
       res.json({ message: 'Evento eliminado exitosamente' });
+
     } catch (error) {
+      console.error("Error al eliminar evento:", error.message);
+      if (conn) await conn.close();
       res.status(500).json({ error: error.message });
     }
   }

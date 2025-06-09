@@ -18,7 +18,9 @@ export async function createEvento(evento: {
   fecha_evento: string;
   hora_inicio_evento: string;
   hora_termino_evento: string;
-  lugar_evento: string; // <-- agregado
+  lugar_evento: string;
+  latitud: number;
+  longitud: number;
   id_usuario: number | string;
   id_tipo_evento: number | string;
 }) {
@@ -37,4 +39,12 @@ export async function fetchEventosByUserId(userId: number | string) {
   const response = await fetch(`${API_URL}/eventos/eventos/usuario/${userId}`);
   if (!response.ok) throw new Error('Error al obtener los eventos del usuario');
   return response.json();
+}
+
+export async function deleteEvento(id: number | string) {
+  const response = await fetch(`${API_URL}/eventos/eventos/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Error al eliminar el evento');
+  return true;
 }

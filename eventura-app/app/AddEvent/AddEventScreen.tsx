@@ -1,3 +1,4 @@
+// ...otros imports
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -14,16 +15,9 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { fetchTiposEvento, createEvento } from "../../services/eventService";
 import { authService } from "../../services/authService";
 import ButtonProps from "../../Components/Button";
-import {
-  SafeAreaInsetsContext,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function AddEventScreen({
-  onSuccess,
-}: {
-  onSuccess?: () => void;
-}) {
+export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }) {
   const insets = useSafeAreaInsets();
 
   const [nombre, setNombre] = useState("");
@@ -33,32 +27,31 @@ export default function AddEventScreen({
   const [horaInicio, setHoraInicio] = useState(new Date());
   const [horaTermino, setHoraTermino] = useState(new Date());
   const [tipoEventoId, setTipoEventoId] = useState("");
-  const [tiposEvento, setTiposEvento] = useState<
-    { id: number | string; nombre: string }[]
-  >([]);
+  const [tiposEvento, setTiposEvento] = useState<{ id: number | string; nombre: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<number | string | null>(null);
-
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showHoraInicio, setShowHoraInicio] = useState(false);
   const [showHoraTermino, setShowHoraTermino] = useState(false);
+  const [sugerencias, setSugerencias] = useState<any[]>([]);
 
-  // Obtener usuario autenticado
+  const [latitud, setLatitud] = useState<number | null>(null);
+  const [longitud, setLongitud] = useState<number | null>(null);
+
   useEffect(() => {
     authService.getCurrentUser().then((user) => {
       if (user && user.id) setUserId(user.id);
     });
   }, []);
 
-  // Obtener tipos de evento
   useEffect(() => {
     fetchTiposEvento()
       .then((data) => {
         setTiposEvento(data);
-        setTipoEventoId(data[0]?.id || "");
+        setTipoEventoId(String(data[0]?.id || ""));
         setLoading(false);
       })
-      .catch((error) => {
+      .catch(() => {
         Alert.alert("Error", "No se pudieron cargar los tipos de evento");
         setLoading(false);
       });
@@ -70,6 +63,11 @@ export default function AddEventScreen({
       return;
     }
     try {
+      if (!lugar || latitud === null || longitud === null) {
+        Alert.alert("Error", "Debes seleccionar un lugar válido");
+        return;
+      }
+
       const evento = {
         nombre_evento: nombre,
         descripcion_evento: descripcion,
@@ -79,6 +77,8 @@ export default function AddEventScreen({
         lugar_evento: lugar,
         id_usuario: userId,
         id_tipo_evento: tipoEventoId,
+        latitud: latitud!,
+        longitud: longitud!,
       };
       console.log("Evento a enviar:", evento);
       await createEvento(evento);
@@ -86,10 +86,36 @@ export default function AddEventScreen({
       if (onSuccess) onSuccess();
     } catch (error: any) {
       console.error("Error al crear evento:", error);
-      Alert.alert(
-        "Error",
-        `No se pudo crear el evento: ${error?.message || error}`
-      );
+      Alert.alert("Error", `No se pudo crear el evento: ${error?.message || error}`);
+    }
+  };
+
+  const buscarLugares = async (input: string) => {
+    if (!input) return [];
+    const apiKey = "AIzaSyD6w_NILALZTacu5qTPC2n0qUmI4isCUog";
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
+        input
+      )}&key=${apiKey}&language=es`
+    );
+    const json = await response.json();
+    return json.predictions || [];
+  };
+
+  const obtenerCoordenadas = async (placeId: string) => {
+    const apiKey = "AIzaSyD6w_NILALZTacu5qTPC2n0qUmI4isCUog";
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${apiKey}`
+    );
+    const json = await response.json();
+
+    const location = json.result?.geometry?.location;
+    if (location) {
+      setLatitud(location.lat);
+      setLongitud(location.lng);
+      console.log("Coordenadas:", location.lat, location.lng);
+    } else {
+      Alert.alert("Error", "No se pudieron obtener las coordenadas del lugar");
     }
   };
 
@@ -103,7 +129,6 @@ export default function AddEventScreen({
 
   return (
     <View style={{ paddingTop: insets.top, flex: 1 }}>
-
       <ScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
@@ -112,6 +137,7 @@ export default function AddEventScreen({
         <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 10 }}>
           Crea un evento :3
         </Text>
+
         <Text style={styles.label}>Nombre del Evento</Text>
         <TextInput
           style={styles.input}
@@ -132,16 +158,37 @@ export default function AddEventScreen({
         <Text style={styles.label}>Lugar</Text>
         <TextInput
           style={styles.input}
+          placeholder="Buscar lugar del evento"
           value={lugar}
-          onChangeText={setLugar}
-          placeholder="Lugar del evento"
+          onChangeText={async (text) => {
+            setLugar(text);
+            if (text.length > 2) {
+              const resultados = await buscarLugares(text);
+              setSugerencias(resultados);
+            } else {
+              setSugerencias([]);
+            }
+          }}
         />
+        {sugerencias.length > 0 && (
+          <View style={{ maxHeight: 150, marginBottom: 8 }}>
+            {sugerencias.map((item) => (
+              <TouchableOpacity
+                key={item.place_id}
+                onPress={() => {
+                  setLugar(item.description);
+                  setSugerencias([]);
+                  obtenerCoordenadas(item.place_id);
+                }}
+              >
+                <Text style={{ paddingVertical: 8 }}>{item.description}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
         <Text style={styles.label}>Fecha del Evento</Text>
-        <TouchableOpacity
-          onPress={() => setShowDatePicker(true)}
-          style={styles.input}
-        >
+        <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.input}>
           <Text>{fecha.toLocaleDateString()}</Text>
         </TouchableOpacity>
         {showDatePicker && (
@@ -157,10 +204,7 @@ export default function AddEventScreen({
         )}
 
         <Text style={styles.label}>Hora de Inicio</Text>
-        <TouchableOpacity
-          onPress={() => setShowHoraInicio(true)}
-          style={styles.input}
-        >
+        <TouchableOpacity onPress={() => setShowHoraInicio(true)} style={styles.input}>
           <Text>
             {horaInicio.toLocaleTimeString([], {
               hour: "2-digit",
@@ -182,10 +226,7 @@ export default function AddEventScreen({
         )}
 
         <Text style={styles.label}>Hora de Término</Text>
-        <TouchableOpacity
-          onPress={() => setShowHoraTermino(true)}
-          style={styles.input}
-        >
+        <TouchableOpacity onPress={() => setShowHoraTermino(true)} style={styles.input}>
           <Text>
             {horaTermino.toLocaleTimeString([], {
               hour: "2-digit",
@@ -213,13 +254,13 @@ export default function AddEventScreen({
               key={tipo.id}
               style={[
                 styles.pickerItem,
-                tipoEventoId === tipo.id && styles.pickerItemSelected,
+                tipoEventoId === String(tipo.id) && styles.pickerItemSelected,
               ]}
               onPress={() => setTipoEventoId(String(tipo.id))}
             >
               <Text
                 style={
-                  tipoEventoId === tipo.id
+                  tipoEventoId === String(tipo.id)
                     ? styles.pickerTextSelected
                     : styles.pickerText
                 }
@@ -229,8 +270,13 @@ export default function AddEventScreen({
             </TouchableOpacity>
           ))}
         </View>
+
         <View
-          style={{ height: 70, alignItems: "center", justifyContent: "center" }}
+          style={{
+            height: 70,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
         >
           <ButtonProps
             title="Crear Evento"

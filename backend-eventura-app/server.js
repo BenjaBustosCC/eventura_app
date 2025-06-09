@@ -2,13 +2,13 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
-const userRoutes = require("./routes/userRoutes"); // Importa las rutas de usuario
+const userRoutes = require("./routes/userRoutes");
 const eventRoutes = require("./routes/eventRoutes");
-const eventTypeRoutes = require("./routes/eventTypeRoutes"); // Importa las rutas de tipos de eventos
+const eventTypeRoutes = require("./routes/eventTypeRoutes");
 const authRoutes = require('./routes/authRoutes');
 
 const app = express();
-const PORT = 8081;
+const PORT = 3001;
 
 app.use(cors({
   origin: "*",
@@ -21,10 +21,10 @@ app.options('*', cors());
 app.use(bodyParser.json());
 
 // Rutas
-app.use("/api/users", userRoutes); // Usa las rutas de usuario
-app.use("/api/auth", authRoutes); // Usa las rutas de autenticación
+app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/eventos", eventRoutes);
-app.use("/api/tipos-evento", eventTypeRoutes); // Usa las rutas de tipos de eventos
+app.use("/api/tipos-evento", eventTypeRoutes);
 
 // Iniciar el servidor
 app.listen(PORT, () => {

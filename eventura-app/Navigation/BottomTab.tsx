@@ -7,7 +7,7 @@ import EventScreen from "../app/Eventos/EventScreen";
 import MapaScreen from "../app/Maps/MapScreen";
 import ProfileScreen from "../app/Profile/ProfileScreen";
 import AddScreen from "../app/AddEvent/AddEventScreen";
-import UserManagement from "../app/UserManagement/UserManagementScreen"; // Asegúrate de tener este archivo
+import UserManagement from "../app/UserManagement/UserManagementScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -36,7 +36,7 @@ export default function BottomTabNavigator({
           } else {
             iconName = "ellipse"; // fallback icon
           }
-          // Puedes personalizar el color/tamaño aquí si quieres resaltar el botón de añadir
+          
           return <Ionicons name={iconName} size={24} color={"#BB271A"} />;
         },
         tabBarActiveTintColor: "#6200ee",
