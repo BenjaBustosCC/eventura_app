@@ -9,12 +9,11 @@ type HomeCardProps = {
 };
 
 export default function HomeCard({ nombre, fecha, imagen, onPress }: HomeCardProps) {
-  // Usa un placeholder si no hay imagen válida
+  // Asegura el prefijo base64 si es necesario
   const imageUri =
-    imagen && typeof imagen === 'string' && imagen.length > 0
-      ? imagen
-      : 'https://via.placeholder.com/200x120/ff9800/ffffff?text=Evento';
-
+  imagen && typeof imagen === 'string' && imagen.length > 0
+    ? imagen
+    : 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fethic.es%2F2023%2F03%2Fel-enigma-de-la-imagen%2F&psig=AOvVaw1cCTIoadcAHZZ-LP8xywAd&ust=1749574911325000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCJiPk8ro5I0DFQAAAAAdAAAAABAE';
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
       <Image

@@ -1,5 +1,7 @@
 const db = require('../db');
 const pool = require("../db.js");
+const oracledb = require('oracledb');
+
 
 
 const eventController = {
@@ -9,18 +11,28 @@ getAllEvents: async (req, res) => {
   try {
     conn = await pool.getConnection();
     const result = await conn.execute(
-      `SELECT id_evento, nombre_evento, TO_CHAR(fecha_evento, 'DD-MM-YYYY'), TO_CHAR(hora_inicio_evento, 'HH24:MI'), imagen
-       FROM evento
-       ORDER BY fecha_evento ASC`
+      `SELECT id_evento, nombre_evento, TO_CHAR(fecha_evento, 'DD-MM-YYYY'), TO_CHAR(hora_inicio_evento, 'HH24:MI'), imagen FROM evento ORDER BY fecha_evento ASC`
     );
 
-    const eventos = result.rows.map((row) => ({
-      id: row[0],
-      titulo: row[1],
-      fecha: `${row[2]} a las ${row[3]}`,
-      imagen: row[4]
-        ? `data:image/jpeg;base64,${row[4].toString('base64')}`
-        : null, // Devuelve null si no hay imagen
+    const eventos = await Promise.all(result.rows.map(async (row) => {
+      const [id, nombre, fecha, hora, imagenLob] = row;
+
+      let imagenBase64 = null;
+      if (imagenLob) {
+        if (Buffer.isBuffer(imagenLob)) {
+          imagenBase64 = `data:image/jpeg;base64,${imagenLob.toString('base64')}`;
+        } else if (typeof imagenLob === 'object' && typeof imagenLob.on === 'function') {
+          const buffer = await lobToBuffer(imagenLob);
+          imagenBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+        }
+      }
+
+      return {
+        id,
+        titulo: nombre,
+        fecha: `${fecha} a las ${hora}`,
+        imagen: imagenBase64,
+      };
     }));
 
     res.json(eventos);
@@ -37,36 +49,57 @@ getAllEvents: async (req, res) => {
     }
   }
 },
-
   // obtener evento por ID
   getEventById: async (req, res) => {
-    const { id } = req.params;
-    let conn;
-    try {
-      conn = await pool.getConnection();
-      const result = await conn.execute(
-        `SELECT * FROM evento WHERE id_evento = :1`,
-        [id]
-      );
+  const { id } = req.params;
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const result = await conn.execute(
+      `SELECT * FROM evento WHERE id_evento = :1`,
+      [id]
+    );
 
-      if (result.rows.length === 0) {
-        return res.status(404).json({ message: 'Evento no encontrado' });
-      }
-      res.json(result.rows[0]);
-    } catch (error) {
-      console.error('Error al obtener evento:', error);
-      res.status(500).json({ error: error.message });
-    } finally {
-      if (conn) {
-        try {
-          await conn.close();
-        } catch (err) {
-          console.error('Error al cerrar la conexión:', err);
-        }
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Evento no encontrado' });
+    }
+
+    const row = result.rows[0];
+
+    // Extraer y convertir la imagen a base64
+    let imagenBase64 = null;
+    if (row[11] && Buffer.isBuffer(row[11])) {
+      imagenBase64 = `data:image/jpeg;base64,${row[11].toString('base64')}`;
+    }
+
+    res.json({
+      id: row[0],
+      nombre: row[1],
+      descripcion: row[2],
+      fecha: row[3],
+      hora_inicio: row[4],
+      hora_termino: row[5],
+      lugar: row[6],
+      latitud: row[7],
+      longitud: row[8],
+      id_usuario: row[9],
+      id_tipo_evento: row[10],
+      imagen: imagenBase64,
+    });
+
+  } catch (error) {
+    console.error('Error al obtener evento:', error);
+    res.status(500).json({ error: error.message });
+  } finally {
+    if (conn) {
+      try {
+        await conn.close();
+      } catch (err) {
+        console.error('Error al cerrar la conexión:', err);
       }
     }
-  },
-
+  }
+},
   // obtener eventos por ID de usuario
 getEventsByUserId: async (req, res) => {
   const { userId } = req.params;

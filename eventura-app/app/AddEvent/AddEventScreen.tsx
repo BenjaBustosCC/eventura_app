@@ -18,10 +18,7 @@ import {
   SafeAreaInsetsContext,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import React, { useState, useEffect } from 'react';
-import { Alert } from 'react-native';
-import { fetchTiposEvento, createEvento } from '../../services/eventService';
-import { authService } from '../../services/authService';
+
 import AddEventForm from './AddEventForm';
 
 export default function AddEventScreen({

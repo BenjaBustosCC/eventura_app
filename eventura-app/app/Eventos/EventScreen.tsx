@@ -19,11 +19,10 @@ type Evento = {
 
 type RootStackParamList = {
   EditEventScreen: { evento: Evento };
-  // Puedes agregar más screens aquí si lo necesitas
 };
 
 export default function EventScreen() {
-  const insets = useSafeAreaInsets();
+  // const insets = useSafeAreaInsets(); // Elimina o comenta esta línea
 
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,7 +31,6 @@ export default function EventScreen() {
 
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
-  // Cargar eventos del usuario cada vez que la vista recibe foco
   useFocusEffect(
     useCallback(() => {
       setLoading(true);
@@ -54,20 +52,19 @@ export default function EventScreen() {
     }, [])
   );
 
-  // Manejar eliminación
   const handleDelete = (evento: Evento) => {
     setEventoAEliminar(evento);
     setModalVisible(true);
   };
 
   const confirmarEliminacion = async () => {
-    const id = eventoAEliminar?.id_evento || eventoAEliminar?.id;
+    const id = eventoAEliminar?.id_evento;
     if (!id) return;
     setModalVisible(false);
     setLoading(true);
     try {
       await deleteEvento(id);
-      setEventos(prev => prev.filter(ev => (ev.id_evento || ev.id) !== id));
+      setEventos(prev => prev.filter(ev => ev.id_evento !== id));
       Alert.alert('Éxito', 'Evento eliminado correctamente');
     } catch (error: any) {
       Alert.alert('Error', error?.message || 'No se pudo eliminar el evento');
@@ -97,8 +94,7 @@ export default function EventScreen() {
             fecha={item.fecha || ''}
             imagen={item.imagen}
             onDelete={() => handleDelete(item)}
-            onEdit={() => navigation.navigate('EditEventScreen', { evento: item })}
-          />
+            onEdit={() => navigation.navigate('EditEventScreen', { evento: item })} descripcion={''}          />
         )}
         ListEmptyComponent={<Text>No tienes eventos.</Text>}
       />
@@ -136,7 +132,6 @@ export default function EventScreen() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
