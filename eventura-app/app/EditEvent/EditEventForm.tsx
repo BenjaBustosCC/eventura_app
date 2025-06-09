@@ -1,37 +1,56 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Platform, ScrollView, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Platform, Alert, ScrollView } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Picker } from '@react-native-picker/picker';
-import * as ImagePicker from 'expo-image-picker';
+import { fetchTiposEvento, updateEvento } from '../../services/eventService';
 
-export default function AddEventForm({
-  nombre, setNombre,
-  descripcion, setDescripcion,
-  lugar, setLugar,
-  fecha, setFecha,
-  horaInicio, setHoraInicio,
-  horaTermino, setHoraTermino,
-  tipoEventoId, setTipoEventoId,
-  tiposEvento,
-  showDatePicker, setShowDatePicker,
-  showHoraInicio, setShowHoraInicio,
-  showHoraTermino, setShowHoraTermino,
-  handleSubmit,
-  loading,
-  imagen, setImagen // <-- agrega estos dos props
-}: any) {
-  const [picking, setPicking] = useState(false);
+type EditEventFormProps = {
+  evento: any;
+  onSuccess?: () => void;
+};
 
-  const pickImage = async () => {
-    setPicking(true);
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      base64: true,
-      quality: 0.7,
-    });
-    setPicking(false);
-    if (!result.canceled && result.assets && result.assets[0].base64) {
-      setImagen(result.assets[0].base64);
+export default function EditEventForm({ evento, onSuccess }: EditEventFormProps) {
+  const [nombre, setNombre] = useState(evento.nombre_evento || '');
+  const [descripcion, setDescripcion] = useState(evento.descripcion_evento || '');
+  const [lugar, setLugar] = useState(evento.lugar_evento || '');
+  const [fecha, setFecha] = useState(new Date(evento.fecha_evento));
+  const [horaInicio, setHoraInicio] = useState(new Date(`${evento.fecha_evento}T${evento.hora_inicio_evento}`));
+  const [horaTermino, setHoraTermino] = useState(new Date(`${evento.fecha_evento}T${evento.hora_termino_evento}`));
+  const [tipoEventoId, setTipoEventoId] = useState(String(evento.id_tipo_evento));
+  const [tiposEvento, setTiposEvento] = useState<{ id: number | string; nombre: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showHoraInicio, setShowHoraInicio] = useState(false);
+  const [showHoraTermino, setShowHoraTermino] = useState(false);
+
+  useEffect(() => {
+    fetchTiposEvento()
+      .then(data => {
+        setTiposEvento(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        Alert.alert('Error', 'No se pudieron cargar los tipos de evento');
+        setLoading(false);
+      });
+  }, []);
+
+  const handleSubmit = async () => {
+    try {
+      await updateEvento(evento.id_evento, {
+        nombre_evento: nombre,
+        descripcion_evento: descripcion,
+        fecha_evento: fecha.toISOString().split('T')[0],
+        hora_inicio_evento: horaInicio.toTimeString().slice(0, 5),
+        hora_termino_evento: horaTermino.toTimeString().slice(0, 5),
+        lugar_evento: lugar,
+        id_usuario: evento.id_usuario,
+        id_tipo_evento: tipoEventoId,
+      });
+      Alert.alert('Éxito', 'Evento actualizado correctamente');
+      if (onSuccess) onSuccess();
+    } catch (error: any) {
+      Alert.alert('Error', error?.message || 'No se pudo actualizar el evento');
     }
   };
 
@@ -121,32 +140,24 @@ export default function AddEventForm({
       )}
 
       <Text style={styles.label}>Tipo de Evento</Text>
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={tipoEventoId}
-          onValueChange={(itemValue) => setTipoEventoId(String(itemValue))}
-          style={styles.picker}
-        >
-          {tiposEvento.map((tipo: { id: string | number; nombre: string }) => (
-            <Picker.Item key={tipo.id} label={tipo.nombre} value={tipo.id} />
-          ))}
-        </Picker>
+      <View style={styles.picker}>
+        {tiposEvento.map(tipo => (
+          <TouchableOpacity
+            key={tipo.id}
+            style={[
+              styles.pickerItem,
+              tipoEventoId === tipo.id && styles.pickerItemSelected,
+            ]}
+            onPress={() => setTipoEventoId(String(tipo.id))}
+          >
+            <Text style={tipoEventoId === tipo.id ? styles.pickerTextSelected : styles.pickerText}>
+              {tipo.nombre}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
-      <Text style={styles.label}>Imagen del Evento</Text>
-      <TouchableOpacity style={styles.imagePicker} onPress={pickImage} disabled={picking}>
-        <Text style={{ color: '#ff9800', textAlign: 'center' }}>
-          {imagen ? 'Cambiar imagen' : 'Seleccionar imagen'}
-        </Text>
-      </TouchableOpacity>
-      {imagen ? (
-        <Image
-          source={{ uri: `data:image/jpeg;base64,${imagen}` }}
-          style={styles.imagePreview}
-        />
-      ) : null}
-
-      <Button title="Crear Evento" onPress={handleSubmit} />
+      <Button title="Actualizar Evento" onPress={handleSubmit} />
     </ScrollView>
   );
 }
@@ -172,31 +183,28 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     backgroundColor: '#fff7e6',
   },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: '#ff9800',
-    borderRadius: 8,
-    marginBottom: 16,
-    backgroundColor: '#fff7e6',
-    overflow: 'hidden',
-  },
   picker: {
-    width: '100%',
-    color: '#ff9800',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 16,
   },
-  imagePicker: {
+  pickerItem: {
+    padding: 8,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: '#ff9800',
-    borderRadius: 8,
-    padding: 12,
+    marginRight: 8,
     marginBottom: 8,
     backgroundColor: '#fff7e6',
   },
-  imagePreview: {
-    width: 120,
-    height: 120,
-    borderRadius: 8,
-    alignSelf: 'center',
-    marginBottom: 16,
+  pickerItemSelected: {
+    backgroundColor: '#ff9800',
+  },
+  pickerText: {
+    color: '#ff9800',
+  },
+  pickerTextSelected: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });

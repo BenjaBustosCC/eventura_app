@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, Modal, Touc
 import EventCard from './EventCard';
 import { fetchEventosByUserId, deleteEvento } from '../../services/eventService';
 import { authService } from '../../services/authService';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
 
 type Evento = {
   id_evento?: number | string;
@@ -14,11 +15,18 @@ type Evento = {
   imagen?: string;
 };
 
+type RootStackParamList = {
+  EditEventScreen: { evento: Evento };
+  // Puedes agregar más screens aquí si lo necesitas
+};
+
 export default function EventScreen() {
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [loading, setLoading] = useState(true);
   const [eventoAEliminar, setEventoAEliminar] = useState<Evento | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   // Cargar eventos del usuario cada vez que la vista recibe foco
   useFocusEffect(
@@ -49,13 +57,13 @@ export default function EventScreen() {
   };
 
   const confirmarEliminacion = async () => {
-    const id = eventoAEliminar?.id_evento || eventoAEliminar?.id; //esto no entiendo xq id me da error pero funciona así que no tocar xd
+    const id = eventoAEliminar?.id_evento || eventoAEliminar?.id;
     if (!id) return;
     setModalVisible(false);
     setLoading(true);
     try {
       await deleteEvento(id);
-      setEventos(prev => prev.filter(ev => (ev.id_evento || ev.id) !== id)); //lo mismo acá
+      setEventos(prev => prev.filter(ev => (ev.id_evento || ev.id) !== id));
       Alert.alert('Éxito', 'Evento eliminado correctamente');
     } catch (error: any) {
       Alert.alert('Error', error?.message || 'No se pudo eliminar el evento');
@@ -85,6 +93,7 @@ export default function EventScreen() {
             fecha={item.fecha || ''}
             imagen={item.imagen}
             onDelete={() => handleDelete(item)}
+            onEdit={() => navigation.navigate('EditEventScreen', { evento: item })}
           />
         )}
         ListEmptyComponent={<Text>No tienes eventos.</Text>}

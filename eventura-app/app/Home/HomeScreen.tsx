@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { fetchEventos } from '../../services/eventService';
 import HomeCard from './HomeCard';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 type Evento = {
   id_evento?: number | string;
@@ -10,11 +10,20 @@ type Evento = {
   titulo?: string;
   fecha?: string;
   descripcion?: string;
+  imagen?: string; // <-- agrega imagen aquí
 };
 
 export default function HomeScreen() {
+  const navigation = useNavigation();
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const handlePress = (id_evento: number | string) => {
+    const eventoSeleccionado = eventos.find(ev => ev.id_evento === id_evento);
+    if (eventoSeleccionado) {
+      navigation.navigate('DetalleEventoScreen', { evento: eventoSeleccionado });
+    }
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -48,6 +57,8 @@ export default function HomeScreen() {
           <HomeCard
             nombre={item.nombre || item.titulo || 'Evento sin nombre'}
             fecha={item.fecha || ''}
+            imagen={item.imagen}
+            onPress={() => handlePress(item.id_evento)}
           />
         )}
         ListEmptyComponent={<Text>No hay eventos disponibles.</Text>}

@@ -18,7 +18,9 @@ app.use(cors({
 
 app.options('*', cors());
 
-app.use(bodyParser.json());
+// Aumenta el límite de tamaño del body a 10mb
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 // Rutas
 app.use("/api/users", userRoutes); // Usa las rutas de usuario

@@ -8,6 +8,8 @@ import LoginScreen from "./app/Login/LoginScreen";
 import HomeScreen from "./app/Home/HomeScreen";
 import RegisterScreen from "./app/Register/RegisterScreen";
 import BottomTabNavigator from "./Navigation/BottomTab";
+import EditEventScreen from "./app/EditEvent/EditEventScreen"; // <-- Usa el wrapper, no el form
+import DetalleEventoScreen from './app/DetalleEvento/DetalleEventoScreen';
 
 
 const Stack = createStackNavigator();
@@ -25,7 +27,7 @@ export default function App() {
 
   if (isLoading) {
     return (
-        <SplashScreen/>
+      <SplashScreen />
     );
   }
 
@@ -41,8 +43,12 @@ export default function App() {
             <Stack.Screen name="Register" component={RegisterScreen} />
           </>
         ) : (
-          // Pantallas principales (con tabs)
-          <Stack.Screen name="HomeTabs" component={BottomTabNavigator} />
+          // Pantallas principales (con tabs) + EditEventScreen
+          <>
+            <Stack.Screen name="HomeTabs" component={BottomTabNavigator} />
+            <Stack.Screen name="EditEventScreen" component={EditEventScreen} />
+            <Stack.Screen name="DetalleEventoScreen" component={DetalleEventoScreen} />
+            </>
         )}
       </Stack.Navigator>
       <StatusBar style="auto" />

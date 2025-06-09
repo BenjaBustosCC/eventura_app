@@ -3,14 +3,14 @@ const pool = require("../db.js");
 
 
 const eventController = {
-  // obtener todos los eventos
-  getAllEvents: async (req, res) => {
+// obtener todos los eventos
+getAllEvents: async (req, res) => {
   let conn;
   try {
     conn = await pool.getConnection();
 
     const result = await conn.execute(
-      `SELECT id_evento, nombre_evento, TO_CHAR(fecha_evento, 'DD-MM-YYYY'), TO_CHAR(hora_inicio_evento, 'HH24:MI')
+      `SELECT id_evento, nombre_evento, TO_CHAR(fecha_evento, 'DD-MM-YYYY'), TO_CHAR(hora_inicio_evento, 'HH24:MI'), imagen
        FROM evento
        ORDER BY fecha_evento ASC`
     );
@@ -19,7 +19,9 @@ const eventController = {
       id: row[0],
       titulo: row[1],
       fecha: `${row[2]} a las ${row[3]}`,
-      imagen: 'https://via.placeholder.com/150', // Podés adaptar esto si tenés un campo real de imagen
+      imagen: row[4]
+        ? `data:image/jpeg;base64,${row[4].toString('base64')}`
+        : null, // Devuelve null si no hay imagen
     }));
 
     await conn.close();
@@ -83,7 +85,7 @@ getEventsByUserId: async (req, res) => {
   }
 },
   // crear evento
-  createEvent: async (req, res) => {
+createEvent: async (req, res) => {
   const {
     nombre_evento,
     descripcion_evento,
@@ -94,25 +96,32 @@ getEventsByUserId: async (req, res) => {
     latitud,
     longitud,
     id_usuario,
-    id_tipo_evento
+    id_tipo_evento,
+    imagen // <-- base64 string
   } = req.body;
 
   let conn;
   try {
+    // Decodifica la imagen base64 a buffer (si viene)
+    let imagenBuffer = null;
+    if (imagen) {
+      imagenBuffer = Buffer.from(imagen, 'base64');
+    }
+
     conn = await pool.getConnection();
     await conn.execute(
       `INSERT INTO evento (
         nombre_evento, descripcion_evento, fecha_evento, 
         hora_inicio_evento, hora_termino_evento, lugar_evento,
-        latitud, longitud, id_usuario, id_tipo_evento
+        latitud, longitud, id_usuario, id_tipo_evento, imagen
       ) VALUES (
         :1, :2, TO_DATE(:3, 'YYYY-MM-DD'), 
-        TO_TIMESTAMP(:4, 'HH24:MI'), TO_TIMESTAMP(:5, 'HH24:MI'), :6, :7, :8, :9, :10
+        TO_TIMESTAMP(:4, 'HH24:MI'), TO_TIMESTAMP(:5, 'HH24:MI'), :6, :7, :8, :9, :10, :11
       )`,
       [
         nombre_evento, descripcion_evento, fecha_evento,
         hora_inicio_evento, hora_termino_evento, lugar_evento,
-        latitud, longitud, id_usuario, id_tipo_evento
+        latitud, longitud, id_usuario, id_tipo_evento, imagenBuffer
       ],
       { autoCommit: true }
     );

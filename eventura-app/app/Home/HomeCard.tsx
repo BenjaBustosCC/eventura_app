@@ -1,23 +1,30 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
 type HomeCardProps = {
   nombre: string;
   fecha: string;
   imagen?: string;
+  onPress?: () => void;
 };
 
-export default function HomeCard({ nombre, fecha, imagen }: HomeCardProps) {
+export default function HomeCard({ nombre, fecha, imagen, onPress }: HomeCardProps) {
+  // Usa un placeholder si no hay imagen válida
+  const imageUri =
+    imagen && typeof imagen === 'string' && imagen.length > 0
+      ? imagen
+      : 'https://via.placeholder.com/200x120/ff9800/ffffff?text=Evento';
+
   return (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
       <Image
-        source={{ uri: imagen || 'https://via.placeholder.com/200x120/ff9800/ffffff?text=Evento' }} // Placeholder image
+        source={{ uri: imageUri }}
         style={styles.imagen}
         resizeMode="cover"
       />
       <Text style={styles.nombre}>{nombre}</Text>
       <Text style={styles.fecha}>{fecha}</Text>
-    </View>
+    </TouchableOpacity>
   );
 }
 
