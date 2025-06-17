@@ -7,7 +7,6 @@ import { createStackNavigator } from "@react-navigation/stack";
 import SplashScreen from "./app/SplashScreen/SplashScreen";
 import LoginScreen from "./app/Login/LoginScreen";
 import RegisterScreen from "./app/Register/RegisterScreen";
-import EditScreen from "./app/EditEventos/EditScreen";
 import BottomTabNavigator from "./Navigation/BottomTab";
 import { enableScreens } from 'react-native-screens';
 
@@ -52,11 +51,6 @@ export default function App() {
               )}
             </Stack.Screen>
 
-            <Stack.Screen
-              name="EditarEvento"
-              component={EditScreen}
-              options={{ headerShown: true, title: "Editar Evento" }}
-            />
           </>
         )}
       </Stack.Navigator>

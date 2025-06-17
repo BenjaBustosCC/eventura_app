@@ -4,32 +4,38 @@ const pool = require("../db.js");
 
 const eventController = {
   // obtener todos los eventos
+  // obtener todos los eventos
   getAllEvents: async (req, res) => {
-  let conn;
-  try {
-    conn = await pool.getConnection();
+    let conn;
+    try {
+      conn = await pool.getConnection();
 
-    const result = await conn.execute(
-      `SELECT id_evento, nombre_evento, descripcion_evento, TO_CHAR(fecha_evento, 'DD-MM-YYYY'), TO_CHAR(hora_inicio_evento, 'HH24:MI')
-       FROM evento
-       ORDER BY fecha_evento ASC`
-    );
+      const result = await conn.execute(
+        `SELECT id_evento, nombre_evento, descripcion_evento, TO_CHAR(fecha_evento, 'DD-MM-YYYY'), TO_CHAR(hora_inicio_evento, 'HH24:MI'), latitud, longitud
+        FROM evento
+        ORDER BY fecha_evento ASC`
+      );
 
-    const eventos = result.rows.map((row) => ({
-      id: row[0],
-      titulo: row[1],
-      fecha: `${row[2]} a las ${row[3]}`,
-      imagen: 'https://via.placeholder.com/150', // Puedes adaptar esto si tenés un campo real de imagen
-    }));
+      const eventos = result.rows.map((row) => ({
+        id: row[0],
+        titulo: row[1],
+        descripcion: row[2],
+        fecha: `${row[3]} a las ${row[4]}`,
+        imagen: 'https://via.placeholder.com/150',
+        latitud: row[5],
+        longitud: row[6],
+      }));
 
-    await conn.close();
-    res.json(eventos);
-  } catch (error) {
-    if (conn) await conn.close();
-    console.error("Error al obtener eventos:", error);
-    res.status(500).json({ error: "Error al obtener eventos" });
-  }
+      await conn.close();
+      res.json(eventos);
+    } catch (error) {
+      if (conn) await conn.close();
+      console.error("Error al obtener eventos:", error);
+      res.status(500).json({ error: "Error al obtener eventos" });
+    }
 },
+
+
 
   // obtener evento por ID
   getEventById: async (req, res) => {
@@ -67,13 +73,13 @@ getEventsByUserId: async (req, res) => {
       [userId]
     );
 
-    // Mapeamos las filas en un formato más amigable para el frontend
+    // Mapeamos las filas en un formato más amigable
     const eventos = result.rows.map((row) => ({
       id: row[0],
       titulo: row[1],
-      descripcion: row[2],     // Añadir este campo
+      descripcion: row[2],
       fecha: `${row[3]} a las ${row[4]}`,
-      imagen: 'https://via.placeholder.com/150' // Reemplaza si tienes una columna real de imagen
+      imagen: 'https://via.placeholder.com/150'
     }));
 
     res.json(eventos);
@@ -81,7 +87,7 @@ getEventsByUserId: async (req, res) => {
     console.error("Error al obtener eventos del usuario:", error);
     res.status(500).json({ error: "Error al obtener eventos del usuario" });
   } finally {
-    if (conn) await conn.close(); // Aseguramos el cierre de la conexión siempre
+    if (conn) await conn.close();
   }
 },
   // crear evento
@@ -179,7 +185,7 @@ getEventsByUserId: async (req, res) => {
       conn = await pool.getConnection();
 
       const result = await conn.execute(
-        `DELETE FROM evento WHERE id_evento = :1`, // parámetro posicional
+        `DELETE FROM evento WHERE id_evento = :1`,
         [parseInt(id)], // array de parámetros, orden importa
         { autoCommit: true }
       );
