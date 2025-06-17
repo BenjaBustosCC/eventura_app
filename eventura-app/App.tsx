@@ -8,23 +8,31 @@ import LoginScreen from "./app/Login/LoginScreen";
 import HomeScreen from "./app/Home/HomeScreen";
 import RegisterScreen from "./app/Register/RegisterScreen";
 import BottomTabNavigator from "./Navigation/BottomTab";
+import { authService } from "./services/authService";
+
 
 const Stack = createStackNavigator();
 
 export default function App() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [userRole, setUserRole] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
-    return () => clearTimeout(timer);
+    const restoreSession = async () => {
+      const token = await authService.getToken();
+      if (token) {
+        setIsAuthenticated(true);
+        const user = await authService.getCurrentUser();
+        setUserRole(user?.role ?? user?.id_rol ?? null);
+      }
+      setLoading(false);
+    };
+    restoreSession();
   }, []);
 
-  if (isLoading) {
-    return <SplashScreen />;
+  if (loading) {
+    return <SplashScreen />; // O un ActivityIndicator
   }
 
   return (
@@ -37,23 +45,22 @@ export default function App() {
                 <LoginScreen
                   {...props}
                   setIsAuthenticated={setIsAuthenticated}
-                  setUserRole={setUserRole} // <-- pasa setter
+                  setUserRole={setUserRole}
                 />
               )}
             </Stack.Screen>
             <Stack.Screen name="Register" component={RegisterScreen} />
           </>
         ) : (
-          <Stack.Screen
-            name="HomeTabs"
-            children={(props) => (
+          <Stack.Screen name="MainTabs">
+            {(props) => (
               <BottomTabNavigator
                 {...props}
                 setIsAuthenticated={setIsAuthenticated}
-                userRole={userRole} // <-- pasa el rol
+                userRole={userRole}
               />
             )}
-          />
+          </Stack.Screen>
         )}
       </Stack.Navigator>
       <StatusBar style="auto" />

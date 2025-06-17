@@ -1,28 +1,22 @@
+const oracledb = require("oracledb");
 const pool = require("../db.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const SECRET_KEY = "your_secret_key";
 
-//Registrar un nuevo usuario
-registerUser = async (req, res) => {
+// Registrar un nuevo usuario
+const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
   let conn;
   try {
-    // Obtener la conexión
     conn = await pool.getConnection();
-
-    // Encriptar la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Ejecutar la query (Oracle usa :param en vez de ?)
     await conn.execute(
       "INSERT INTO usuarios (nombre_usuario, email, password) VALUES (:name, :email, :password)",
       { name, email, password: hashedPassword },
       { autoCommit: true }
     );
-
     await conn.close();
-
     res.status(201).json({ message: "Usuario registrado exitosamente" });
   } catch (error) {
     if (conn) await conn.close();
@@ -31,12 +25,12 @@ registerUser = async (req, res) => {
   }
 };
 
-getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {
   let conn;
   try {
     conn = await pool.getConnection();
     const result = await conn.execute(
-      `SELECT * FROM usuarios`, // Ajusta el nombre de la tabla si es necesario
+      `SELECT * FROM usuarios`,
       [],
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
@@ -45,11 +39,31 @@ getAllUsers = async (req, res) => {
   } catch (error) {
     if (conn) await conn.close();
     console.error("Error al obtener usuarios:", error);
-    res.status(500).json({ error: "Error al obtener usuarios" });
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const updateUserRole = async (req, res) => {
+  const { id } = req.params;
+  const { id_rol } = req.body;
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    await conn.execute(
+      "UPDATE usuarios SET id_rol = :id_rol WHERE id_usuario = :id",
+      { id_rol, id },
+      { autoCommit: true }
+    );
+    await conn.close();
+    res.json({ message: "Rol actualizado correctamente" });
+  } catch (error) {
+    if (conn) await conn.close();
+    res.status(500).json({ error: "Error al actualizar el rol" });
   }
 };
 
 module.exports = {
   registerUser,
-  getAllUsers
+  getAllUsers,
+  updateUserRole
 };
