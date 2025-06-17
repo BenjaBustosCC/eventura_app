@@ -1,217 +1,217 @@
-const db = require('../db');
 const pool = require("../db.js");
 const oracledb = require('oracledb');
 
-
-
 const eventController = {
-// obtener todos los eventos
-getAllEvents: async (req, res) => {
-  let conn;
-  try {
-    conn = await pool.getConnection();
-    const result = await conn.execute(
-      `SELECT id_evento, nombre_evento, TO_CHAR(fecha_evento, 'DD-MM-YYYY'), TO_CHAR(hora_inicio_evento, 'HH24:MI'), imagen FROM evento ORDER BY fecha_evento ASC`
-    );
+  // Obtener todos los eventos (con imagen)
+  getAllEvents: async (req, res) => {
+    let conn;
+    try {
+      conn = await pool.getConnection();
+      const result = await conn.execute(
+        `SELECT id_evento, nombre_evento, descripcion_evento, TO_CHAR(fecha_evento, 'DD-MM-YYYY'), TO_CHAR(hora_inicio_evento, 'HH24:MI'), latitud, longitud, imagen
+         FROM evento
+         ORDER BY fecha_evento ASC`
+      );
 
-    // Función auxiliar para convertir LOB a Buffer
-    const lobToBuffer = (lob) => {
-      return new Promise((resolve, reject) => {
-        const chunks = [];
-        lob.on('data', (chunk) => chunks.push(chunk));
-        lob.on('end', () => resolve(Buffer.concat(chunks)));
-        lob.on('error', reject);
-      });
-    };
+      // Función auxiliar para convertir LOB a Buffer
+      const lobToBuffer = (lob) => {
+        return new Promise((resolve, reject) => {
+          const chunks = [];
+          lob.on('data', (chunk) => chunks.push(chunk));
+          lob.on('end', () => resolve(Buffer.concat(chunks)));
+          lob.on('error', reject);
+        });
+      };
 
-    const eventos = await Promise.all(result.rows.map(async (row) => {
-      const [id, nombre, fecha, hora, imagenLob] = row;
+      const eventos = await Promise.all(result.rows.map(async (row) => {
+        const [id, nombre, descripcion, fecha, hora, latitud, longitud, imagenLob] = row;
 
-      let imagenBase64 = null;
-      if (imagenLob) {
-        if (Buffer.isBuffer(imagenLob)) {
-          imagenBase64 = `data:image/jpeg;base64,${imagenLob.toString('base64')}`;
-        } else if (typeof imagenLob === 'object' && typeof imagenLob.on === 'function') {
-          // Es un LOB, conviértelo a buffer
-          try {
-            const buffer = await lobToBuffer(imagenLob);
-            imagenBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
-          } catch (err) {
-            console.error('Error al convertir LOB a buffer:', err);
+        let imagenBase64 = null;
+        if (imagenLob) {
+          if (Buffer.isBuffer(imagenLob)) {
+            imagenBase64 = `data:image/jpeg;base64,${imagenLob.toString('base64')}`;
+          } else if (typeof imagenLob === 'object' && typeof imagenLob.on === 'function') {
+            try {
+              const buffer = await lobToBuffer(imagenLob);
+              imagenBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+            } catch (err) {
+              console.error('Error al convertir LOB a buffer:', err);
+            }
           }
         }
-      }
 
-      return {
-        id,
-        titulo: nombre,
-        fecha: `${fecha} a las ${hora}`,
-        imagen: imagenBase64,
-      };
-    }));
+        return {
+          id,
+          titulo: nombre,
+          descripcion,
+          fecha: `${fecha} a las ${hora}`,
+          imagen: imagenBase64,
+          latitud,
+          longitud,
+        };
+      }));
 
-    res.json(eventos);
-  } catch (error) {
-    console.error("Error al obtener eventos:", error);
-    res.status(500).json({ error: "Error al obtener eventos" });
-  } finally {
-    if (conn) {
-      try {
-        await conn.close();
-      } catch (err) {
-        console.error('Error al cerrar la conexión:', err);
+      res.json(eventos);
+    } catch (error) {
+      console.error("Error al obtener eventos:", error);
+      res.status(500).json({ error: "Error al obtener eventos" });
+    } finally {
+      if (conn) {
+        try {
+          await conn.close();
+        } catch (err) {
+          console.error('Error al cerrar la conexión:', err);
+        }
       }
     }
-  }
-},
-  // obtener evento por ID
+  },
+
+  // Obtener evento por ID (con imagen)
   getEventById: async (req, res) => {
-  const { id } = req.params;
-  let conn;
-  try {
-    conn = await pool.getConnection();
-    const result = await conn.execute(
-      `SELECT * FROM evento WHERE id_evento = :1`,
-      [id]
-    );
+    const { id } = req.params;
+    let conn;
+    try {
+      conn = await pool.getConnection();
+      const result = await conn.execute(
+        `SELECT * FROM evento WHERE id_evento = :1`,
+        [id]
+      );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Evento no encontrado' });
-    }
+      if (result.rows.length === 0) {
+        return res.status(404).json({ message: 'Evento no encontrado' });
+      }
 
-    const row = result.rows[0];
+      const row = result.rows[0];
+      let imagenBase64 = null;
+      if (row[11] && Buffer.isBuffer(row[11])) {
+        imagenBase64 = `data:image/jpeg;base64,${row[11].toString('base64')}`;
+      }
 
-    // Extraer y convertir la imagen a base64
-    let imagenBase64 = null;
-    if (row[11] && Buffer.isBuffer(row[11])) {
-      imagenBase64 = `data:image/jpeg;base64,${row[11].toString('base64')}`;
-    }
+      res.json({
+        id: row[0],
+        nombre: row[1],
+        descripcion: row[2],
+        fecha: row[3],
+        hora_inicio: row[4],
+        hora_termino: row[5],
+        lugar: row[6],
+        latitud: row[7],
+        longitud: row[8],
+        id_usuario: row[9],
+        id_tipo_evento: row[10],
+        imagen: imagenBase64,
+      });
 
-    res.json({
-      id: row[0],
-      nombre: row[1],
-      descripcion: row[2],
-      fecha: row[3],
-      hora_inicio: row[4],
-      hora_termino: row[5],
-      lugar: row[6],
-      latitud: row[7],
-      longitud: row[8],
-      id_usuario: row[9],
-      id_tipo_evento: row[10],
-      imagen: imagenBase64,
-    });
-
-  } catch (error) {
-    console.error('Error al obtener evento:', error);
-    res.status(500).json({ error: error.message });
-  } finally {
-    if (conn) {
-      try {
-        await conn.close();
-      } catch (err) {
-        console.error('Error al cerrar la conexión:', err);
+    } catch (error) {
+      console.error('Error al obtener evento:', error);
+      res.status(500).json({ error: error.message });
+    } finally {
+      if (conn) {
+        try {
+          await conn.close();
+        } catch (err) {
+          console.error('Error al cerrar la conexión:', err);
+        }
       }
     }
-  }
-},
-  // obtener eventos por ID de usuario
-getEventsByUserId: async (req, res) => {
-  const { userId } = req.params;
-  let conn;
+  },
 
-  try {
-    conn = await pool.getConnection();
+  // Obtener eventos por ID de usuario (sin imagen)
+  getEventsByUserId: async (req, res) => {
+    const { userId } = req.params;
+    let conn;
+    try {
+      conn = await pool.getConnection();
+      const result = await conn.execute(
+        `SELECT 
+          id_evento, 
+          nombre_evento, 
+          descripcion_evento,
+          TO_CHAR(fecha_evento, 'YYYY-MM-DD') AS fecha_formateada, 
+          TO_CHAR(hora_inicio_evento, 'HH24:MI') AS hora_formateada,
+          TO_CHAR(hora_termino_evento, 'HH24:MI') AS hora_termino_formateada
+        FROM evento
+        WHERE id_usuario = :1
+        ORDER BY fecha_evento ASC`,
+        [userId]
+      );
 
-    // Ejecutamos la consulta con alias claros para facilitar el mapeo
-    const result = await conn.execute(
-      `SELECT 
-        id_evento, 
-        nombre_evento, 
-        descripcion_evento,
-        TO_CHAR(fecha_evento, 'YYYY-MM-DD') AS fecha_formateada, 
-        TO_CHAR(hora_inicio_evento, 'HH24:MI') AS hora_formateada,
-        TO_CHAR(hora_termino_evento, 'HH24:MI') AS hora_termino_formateada
-      FROM evento
-      WHERE id_usuario = :1
-      ORDER BY fecha_evento ASC`,
-      [userId]
-    );
+      const eventos = result.rows.map((row) => ({
+        id: row[0],
+        titulo: row[1],
+        descripcion: row[2],
+        fecha: `${row[3]} a las ${row[4]}`,
+        imagen: 'https://placehold.co/200x120/ff9800/ffffff?text=Evento'
+      }));
 
-    // Mapeamos las filas en un formato más amigable para el frontend
-    const eventos = result.rows.map((row) => ({
-      id: row[0],
-      titulo: row[1],
-      descripcion: row[2],   
-      fecha: `${row[3]} a las ${row[4]}`,
-      imagen: 'https://placehold.co/200x120/ff9800/ffffff?text=Evento' // Reemplaza si tienes una columna real de imagen
-    }));
+      res.json(eventos);
+    } catch (error) {
+      console.error("Error al obtener eventos del usuario:", error);
+      res.status(500).json({ error: "Error al obtener eventos del usuario" });
+    } finally {
+      if (conn) await conn.close();
+    }
+  },
 
-    res.json(eventos);
-  } catch (error) {
-    console.error("Error al obtener eventos del usuario:", error);
-    res.status(500).json({ error: "Error al obtener eventos del usuario" });
-  } finally {
-    if (conn) await conn.close();
-  }
-},
-  // crear evento
-createEvent: async (req, res) => {
-  const {
-    nombre_evento,
-    descripcion_evento,
-    fecha_evento,
-    hora_inicio_evento,
-    hora_termino_evento,
-    lugar_evento,
-    latitud,
-    longitud,
-    id_usuario,
-    id_tipo_evento,
-    imagen // <-- base64 string
-  } = req.body;
+  // Crear evento (con imagen base64)
+  createEvent: async (req, res) => {
+    const {
+      nombre_evento,
+      descripcion_evento,
+      fecha_evento,
+      hora_inicio_evento,
+      hora_termino_evento,
+      lugar_evento,
+      latitud,
+      longitud,
+      id_usuario,
+      id_tipo_evento,
+      imagen // <-- base64 string
+    } = req.body;
 
-  // Validación de campos requeridos
-  if (!nombre_evento || !fecha_evento || !id_usuario || !id_tipo_evento) {
-    return res.status(400).json({
-      error: "Los campos nombre, fecha, usuario y tipo son obligatorios"
-    });
-  }
-
-  let conn;
-  try {
-    // Decodifica la imagen base64 a buffer (si viene)
-    let imagenBuffer = null;
-    if (imagen) {
-      imagenBuffer = Buffer.from(imagen, 'base64');
+    // Validación de campos requeridos
+    if (!nombre_evento || !fecha_evento || !id_usuario || !id_tipo_evento) {
+      return res.status(400).json({
+        error: "Los campos nombre, fecha, usuario y tipo son obligatorios"
+      });
     }
 
-    conn = await pool.getConnection();
-    await conn.execute(
-      `INSERT INTO evento (
-        nombre_evento, descripcion_evento, fecha_evento, 
-        hora_inicio_evento, hora_termino_evento, lugar_evento,
-        latitud, longitud, id_usuario, id_tipo_evento, imagen
-      ) VALUES (
-        :1, :2, TO_DATE(:3, 'YYYY-MM-DD'), 
-        TO_TIMESTAMP(:4, 'HH24:MI'), TO_TIMESTAMP(:5, 'HH24:MI'), :6, :7, :8, :9, :10, :11
-      )`,
-      [
-        nombre_evento, descripcion_evento, fecha_evento,
-        hora_inicio_evento, hora_termino_evento, lugar_evento,
-        latitud, longitud, id_usuario, id_tipo_evento, imagenBuffer
-      ],
-      { autoCommit: true }
-    );
-    await conn.close();
-    res.status(201).json({ message: 'Evento creado correctamente' });
-  } catch (error) {
-    if (conn) await conn.close();
-    res.status(500).json({ error: error.message });
-  }
-},
+    let conn;
+    try {
+      // Decodifica la imagen base64 a buffer (si viene)
+      let imagenBuffer = null;
+      if (imagen) {
+        // Si viene con prefijo data:image, quítalo
+        const base64Data = imagen.includes(',') ? imagen.split(',')[1] : imagen;
+        imagenBuffer = Buffer.from(base64Data, 'base64');
+      }
 
-  // actualizar evento
+      conn = await pool.getConnection();
+      await conn.execute(
+        `INSERT INTO evento (
+          nombre_evento, descripcion_evento, fecha_evento, 
+          hora_inicio_evento, hora_termino_evento, lugar_evento,
+          latitud, longitud, id_usuario, id_tipo_evento, imagen
+        ) VALUES (
+          :1, :2, TO_DATE(:3, 'YYYY-MM-DD'), 
+          TO_TIMESTAMP(:4, 'HH24:MI'), TO_TIMESTAMP(:5, 'HH24:MI'), :6, :7, :8, :9, :10, :11
+        )`,
+        [
+          nombre_evento, descripcion_evento, fecha_evento,
+          hora_inicio_evento, hora_termino_evento, lugar_evento,
+          latitud, longitud, id_usuario, id_tipo_evento, imagenBuffer
+        ],
+        { autoCommit: true }
+      );
+      await conn.close();
+      res.status(201).json({ message: 'Evento creado correctamente' });
+    } catch (error) {
+      if (conn) await conn.close();
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  // Actualizar evento (sin imagen)
   updateEvent: async (req, res) => {
     const { id } = req.params;
     const {
@@ -230,7 +230,6 @@ createEvent: async (req, res) => {
     let conn;
     try {
       conn = await pool.getConnection();
-      
       const result = await conn.execute(
         `UPDATE evento SET 
           nombre_evento = :1,
@@ -263,7 +262,7 @@ createEvent: async (req, res) => {
       );
 
       if (result.outBinds[0]) {
-        res.json({ 
+        res.json({
           message: 'Evento actualizado correctamente',
           id: result.outBinds[0]
         });
@@ -284,27 +283,27 @@ createEvent: async (req, res) => {
     }
   },
 
-  // eliminar evento
-deleteEvent: async (req, res) => {
-  const { id } = req.params;
-  let conn;
-  try {
-    conn = await pool.getConnection();
-    const result = await conn.execute(
-      'DELETE FROM evento WHERE id_evento = :1',
-      [id],
-      { autoCommit: true }
-    );
-    await conn.close();
-    if (result.rowsAffected === 0) {
-      return res.status(404).json({ message: 'Evento no encontrado' });
+  // Eliminar evento
+  deleteEvent: async (req, res) => {
+    const { id } = req.params;
+    let conn;
+    try {
+      conn = await pool.getConnection();
+      const result = await conn.execute(
+        'DELETE FROM evento WHERE id_evento = :1',
+        [id],
+        { autoCommit: true }
+      );
+      await conn.close();
+      if (result.rowsAffected === 0) {
+        return res.status(404).json({ message: 'Evento no encontrado' });
+      }
+      res.json({ message: 'Evento eliminado exitosamente' });
+    } catch (error) {
+      if (conn) await conn.close();
+      res.status(500).json({ error: error.message });
     }
-    res.json({ message: 'Evento eliminado exitosamente' });
-  } catch (error) {
-    if (conn) await conn.close();
-    res.status(500).json({ error: error.message });
   }
-}
 };
 
 module.exports = eventController;

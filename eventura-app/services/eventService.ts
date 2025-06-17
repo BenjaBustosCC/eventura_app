@@ -23,6 +23,7 @@ export async function createEvento(evento: {
   longitud: number;
   id_usuario: number | string;
   id_tipo_evento: number | string;
+  imagen: string | null;
 }) {
   const response = await fetch(`${API_URL}/eventos/eventos`, {
     method: 'POST',
