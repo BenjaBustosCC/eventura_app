@@ -215,9 +215,53 @@ const eventController = {
   },
 
   // Actualizar evento (sin imagen)
-  updateEvent: async (req, res) => {
-    const { id } = req.params;
-    const {
+  // Actualizar evento (con imagen opcional)
+// Actualizar evento (con imagen opcional, compatible con BLOB)
+updateEvent: async (req, res) => {
+  const { id } = req.params;
+  const {
+    nombre_evento,
+    descripcion_evento,
+    fecha_evento,
+    hora_inicio_evento,
+    hora_termino_evento,
+    lugar_evento,
+    latitud,
+    longitud,
+    id_usuario,
+    id_tipo_evento,
+    imagen // <-- base64 string opcional
+  } = req.body;
+
+  let conn;
+  try {
+    // Decodifica la imagen base64 a buffer (si viene)
+    let imagenBuffer = null;
+    if (imagen) {
+      const base64Data = imagen.includes(',') ? imagen.split(',')[1] : imagen;
+      imagenBuffer = Buffer.from(base64Data, 'base64');
+    }
+
+    conn = await pool.getConnection();
+
+    let query = `
+      UPDATE evento SET
+        nombre_evento = :1,
+        descripcion_evento = :2,
+        fecha_evento = TO_DATE(:3, 'YYYY-MM-DD'),
+        hora_inicio_evento = TO_TIMESTAMP(:4, 'HH24:MI'),
+        hora_termino_evento = TO_TIMESTAMP(:5, 'HH24:MI'),
+        lugar_evento = :6,
+        latitud = :7,
+        longitud = :8,
+        id_usuario = :9,
+        id_tipo_evento = :10
+        ${imagen ? ', imagen = :11' : ''}
+      WHERE id_evento = :12
+    `;
+
+    // Arma los binds según si hay imagen o no
+    let binds = [
       nombre_evento,
       descripcion_evento,
       fecha_evento,
@@ -228,64 +272,30 @@ const eventController = {
       longitud,
       id_usuario,
       id_tipo_evento
-    } = req.body;
+    ];
 
-    let conn;
-    try {
-      conn = await pool.getConnection();
-      const result = await conn.execute(
-        `UPDATE evento SET 
-          nombre_evento = :1,
-          descripcion_evento = :2,
-          fecha_evento = TO_DATE(:3, 'YYYY-MM-DD'),
-          hora_inicio_evento = TO_TIMESTAMP(:4, 'HH24:MI'),
-          hora_termino_evento = TO_TIMESTAMP(:5, 'HH24:MI'),
-          lugar_evento = :6,
-          latitud = :7,
-          longitud = :8,
-          id_usuario = :9,
-          id_tipo_evento = :10
-        WHERE id_evento = :11
-        RETURNING id_evento INTO :12`,
-        [
-          nombre_evento,
-          descripcion_evento,
-          fecha_evento,
-          hora_inicio_evento,
-          hora_termino_evento,
-          lugar_evento,
-          latitud,
-          longitud,
-          id_usuario,
-          id_tipo_evento,
-          id,
-          { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
-        ],
-        { autoCommit: true }
-      );
-
-      if (result.outBinds[0]) {
-        res.json({
-          message: 'Evento actualizado correctamente',
-          id: result.outBinds[0]
-        });
-      } else {
-        res.status(404).json({ message: 'Evento no encontrado' });
-      }
-    } catch (error) {
-      console.error('Error al actualizar evento:', error);
-      res.status(500).json({ error: error.message });
-    } finally {
-      if (conn) {
-        try {
-          await conn.close();
-        } catch (err) {
-          console.error('Error al cerrar la conexión:', err);
-        }
-      }
+    if (imagen) {
+      binds.push(imagenBuffer); // :11
+      binds.push(id);           // :12
+    } else {
+      binds.push(id);           // :11
     }
-  },
 
+    const result = await conn.execute(query, binds, { autoCommit: true });
+
+    await conn.close();
+
+    if (result.rowsAffected && result.rowsAffected > 0) {
+      res.json({ message: 'Evento actualizado correctamente' });
+    } else {
+      res.status(404).json({ message: 'Evento no encontrado' });
+    }
+  } catch (error) {
+    if (conn) await conn.close();
+    console.error('Error al actualizar evento:', error);
+    res.status(500).json({ error: error.message });
+  }
+},
   // Eliminar evento
   deleteEvent: async (req, res) => {
     const { id } = req.params;
