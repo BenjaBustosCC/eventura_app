@@ -13,7 +13,8 @@ const Stack = createStackNavigator();
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Estado de autenticación
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState<number | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -30,25 +31,27 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!isAuthenticated ? (
-          // Pantallas de autenticación (sin tabs)
           <>
             <Stack.Screen name="Login">
               {(props) => (
                 <LoginScreen
                   {...props}
                   setIsAuthenticated={setIsAuthenticated}
+                  setUserRole={setUserRole} // <-- pasa setter
                 />
               )}
             </Stack.Screen>
             <Stack.Screen name="Register" component={RegisterScreen} />
           </>
         ) : (
-          // Pantallas principales (con tabs)
           <Stack.Screen
             name="HomeTabs"
-            // Usar children para pasar props personalizados
             children={(props) => (
-              <BottomTabNavigator {...props} setIsAuthenticated={setIsAuthenticated} />
+              <BottomTabNavigator
+                {...props}
+                setIsAuthenticated={setIsAuthenticated}
+                userRole={userRole} // <-- pasa el rol
+              />
             )}
           />
         )}
