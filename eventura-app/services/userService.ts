@@ -1,5 +1,11 @@
 import { API_URL } from '@env';
 
+export type User = {
+  id: number;
+  nombre_usuario: string;
+  id_rol: number;
+};
+
 export const userService = {
     registerUser: async (user: {
         name: string;
@@ -26,12 +32,23 @@ export const userService = {
       }
     },
     
-    getAllUsers: async () => {
+    etAllUsers: async (): Promise<User[]> => {
     const response = await fetch(`${API_URL}/usuarios`);
     if (!response.ok) {
       throw new Error('Error al obtener usuarios');
     }
     return await response.json();
   },
-  };
-  
+
+  updateUserRole: async (userId: number, newRole: number): Promise<any> => {
+    const response = await fetch(`${API_URL}/usuarios/${userId}/rol`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id_rol: newRole }),
+    });
+    if (!response.ok) {
+      throw new Error("No se pudo actualizar el rol");
+    }
+    return await response.json();
+  },
+};

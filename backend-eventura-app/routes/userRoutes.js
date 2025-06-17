@@ -8,4 +8,6 @@ router.post('/usuarios', userController.registerUser);
 // Ruta para obtener todos los usuarios
 router.get('/usuarios', userController.getAllUsers);
 
+// PUT /usuarios/:id/rol
+router.put('/usuarios/:id/rol', userController.updateUserRole);
 module.exports = router;

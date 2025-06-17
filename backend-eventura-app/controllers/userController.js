@@ -1,7 +1,9 @@
+const oracledb = require("oracledb");
 const pool = require("../db.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const SECRET_KEY = "your_secret_key";
+
 
 //Registrar un nuevo usuario
 registerUser = async (req, res) => {
@@ -26,7 +28,7 @@ registerUser = async (req, res) => {
     res.status(201).json({ message: "Usuario registrado exitosamente" });
   } catch (error) {
     if (conn) await conn.close();
-    console.error("Error al registrar usuario:", error);
+    console.error("Error al obtener usuarios:", error);
     res.status(500).json({ error: "Error al registrar usuario" });
   }
 };
@@ -49,7 +51,28 @@ getAllUsers = async (req, res) => {
   }
 };
 
+const updateUserRole = async (req, res) => {
+  const { id } = req.params;
+  const { id_rol } = req.body;
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    await conn.execute(
+      "UPDATE usuarios SET id_rol = :id_rol WHERE id = :id",
+      { id_rol, id },
+      { autoCommit: true }
+    );
+    await conn.close();
+    res.json({ message: "Rol actualizado correctamente" });
+  } catch (error) {
+    if (conn) await conn.close();
+    res.status(500).json({ error: "Error al actualizar el rol" });
+  }
+};
+module.exports = { updateUserRole };
+
 module.exports = {
   registerUser,
-  getAllUsers
+  getAllUsers,
+  updateUserRole
 };
