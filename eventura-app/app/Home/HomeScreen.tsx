@@ -1,8 +1,17 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
-import { fetchEventos } from '../../services/eventService';
-import HomeCard from './HomeCard';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
+import { fetchEventos } from "../../services/eventService";
+import HomeCard from "./HomeCard";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import SearchBar from "../../Components/SearchBar";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from '@expo/vector-icons';
 
 type Evento = {
   id_evento?: number | string;
@@ -10,19 +19,38 @@ type Evento = {
   titulo?: string;
   fecha?: string;
   descripcion?: string;
-  imagen?: string; // <-- agrega imagen aquí
+  imagen?: string;
 };
 
 export default function HomeScreen() {
-  const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const [eventos, setEventos] = useState<Evento[]>([]);
+  const [filteredEventos, setFilteredEventos] = useState<Evento[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState('');
+  const navigation = useNavigation();
 
-  const handlePress = (id_evento: number | string) => {
-    const eventoSeleccionado = eventos.find(ev => ev.id_evento === id_evento);
-    if (eventoSeleccionado) {
-      navigation.navigate('DetalleEventoScreen', { evento: eventoSeleccionado });
+  const handleSearch = (text: string) => {
+    setSearchText(text);
+    if (text.trim() === '') {
+      setFilteredEventos(eventos);
+    } else {
+      const lower = text.toLowerCase();
+      setFilteredEventos(
+        eventos.filter(ev =>
+          (ev.nombre || ev.titulo || '').toLowerCase().includes(lower)
+        )
+      );
     }
+  };
+
+  const handleBrujulaPress = () => {
+    console.log("Brujula presionada");
+    // Aquí puedes agregar la funcionalidad que desees al presionar la brújula
+  };
+
+  const handlePress = (evento: Evento) => {
+    navigation.navigate('DetalleEventoScreen', { evento });
   };
 
   useFocusEffect(
@@ -31,6 +59,7 @@ export default function HomeScreen() {
       fetchEventos()
         .then((data) => {
           setEventos(data);
+          setFilteredEventos(data); // Inicializa con todos los eventos
           setLoading(false);
         })
         .catch((error) => {
@@ -43,29 +72,31 @@ export default function HomeScreen() {
   if (loading) {
     return (
       <View style={styles.containerLoading}>
-        <ActivityIndicator size="large" color="#6200ee" />
+        <ActivityIndicator size="large" color="#650F0B" />
       </View>
     );
   }
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={eventos}
-        keyExtractor={item => item.id_evento?.toString() || Math.random().toString()}
-        renderItem={({ item }) => (
-          <HomeCard
-            nombre={item.nombre || item.titulo || 'Evento sin nombre'}
-            fecha={item.fecha || ''}
-            imagen={item.imagen}
-            onPress={() => {
-              if (item.id_evento !== undefined) {
-                handlePress(item.id_evento);
-              }
-            }}
-          />
-        )}
-        ListEmptyComponent={<Text>No hay eventos disponibles.</Text>}
-      />
+    <View style={{ flex: 1, backgroundColor: "#fff", paddingTop: insets.top }}>
+      <SearchBar onSearch={handleSearch} onBrujulaPress={handleBrujulaPress} />
+      <View style={styles.container}>
+        <FlatList
+          data={filteredEventos}
+          keyExtractor={(item) =>
+            item.id_evento?.toString() || Math.random().toString()
+          }
+          renderItem={({ item }) => (
+            <HomeCard
+              nombre={item.nombre || item.titulo || "Evento sin nombre"}
+              fecha={item.fecha || ""}
+              imagen={item.imagen}
+              onPress={() => handlePress(item)}
+            />
+          )}
+          ListEmptyComponent={<Text>No hay eventos disponibles.</Text>}
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
     </View>
   );
 }
@@ -76,8 +107,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#fff",
     paddingHorizontal: 10,
-    borderColor: "red",
-    borderWidth: 1,
   },
   containerLoading: {
     flex: 1,

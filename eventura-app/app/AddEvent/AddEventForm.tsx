@@ -104,7 +104,7 @@ export default function AddEventForm({ userId, onSuccess }: AddEventFormProps) {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <Text style={styles.label}>Nombre del Evento</Text>
+      <Text style={styles.label}>ombre del Evento</Text>
       <TextInput
         style={styles.input}
         value={nombre}

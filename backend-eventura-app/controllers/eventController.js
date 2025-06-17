@@ -8,9 +8,12 @@ const eventController = {
     try {
       conn = await pool.getConnection();
       const result = await conn.execute(
-        `SELECT id_evento, nombre_evento, descripcion_evento, TO_CHAR(fecha_evento, 'DD-MM-YYYY'), TO_CHAR(hora_inicio_evento, 'HH24:MI'), latitud, longitud, imagen
-         FROM evento
-         ORDER BY fecha_evento ASC`
+        `SELECT e.id_evento, e.nombre_evento, e.descripcion_evento, 
+                TO_CHAR(e.fecha_evento, 'DD-MM-YYYY'), TO_CHAR(e.hora_inicio_evento, 'HH24:MI'), 
+                e.latitud, e.longitud, e.lugar_evento, e.imagen, te.nombre_tipo_evento
+        FROM evento e
+        LEFT JOIN tipo_evento te ON e.id_tipo_evento = te.id_tipo_evento
+        ORDER BY e.fecha_evento ASC`
       );
 
       // Función auxiliar para convertir LOB a Buffer
@@ -24,8 +27,7 @@ const eventController = {
       };
 
       const eventos = await Promise.all(result.rows.map(async (row) => {
-        const [id, nombre, descripcion, fecha, hora, latitud, longitud, imagenLob] = row;
-
+      const [id, nombre, descripcion, fecha, hora, latitud, longitud, lugar_evento, imagenLob, tipo_evento_nombre] = row;
         let imagenBase64 = null;
         if (imagenLob) {
           if (Buffer.isBuffer(imagenLob)) {
@@ -48,9 +50,10 @@ const eventController = {
           imagen: imagenBase64,
           latitud,
           longitud,
+          lugar_evento,
+          tipo_evento_nombre, // <-- ahora sí lo envías al frontend
         };
       }));
-
       res.json(eventos);
     } catch (error) {
       console.error("Error al obtener eventos:", error);
@@ -94,7 +97,7 @@ const eventController = {
         fecha: row[3],
         hora_inicio: row[4],
         hora_termino: row[5],
-        lugar: row[6],
+        lugar_evento: row[6],
         latitud: row[7],
         longitud: row[8],
         id_usuario: row[9],

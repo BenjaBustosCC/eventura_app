@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
 type HomeCardProps = {
   nombre: string;
@@ -9,15 +9,10 @@ type HomeCardProps = {
 };
 
 export default function HomeCard({ nombre, fecha, imagen, onPress }: HomeCardProps) {
-  // Asegura el prefijo base64 si es necesario
-  const imageUri =
-  imagen && typeof imagen === 'string' && imagen.length > 0
-    ? imagen
-    : 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fethic.es%2F2023%2F03%2Fel-enigma-de-la-imagen%2F&psig=AOvVaw1cCTIoadcAHZZ-LP8xywAd&ust=1749574911325000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCJiPk8ro5I0DFQAAAAAdAAAAABAE';
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
+    <TouchableOpacity style={styles.card} onPress={onPress}>
       <Image
-        source={{ uri: imageUri }}
+        source={{ uri: imagen || 'https://via.placeholder.com/200x120/ff9800/ffffff?text=Evento' }}
         style={styles.imagen}
         resizeMode="cover"
       />
@@ -26,7 +21,6 @@ export default function HomeCard({ nombre, fecha, imagen, onPress }: HomeCardPro
     </TouchableOpacity>
   );
 }
-
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#BB271A',

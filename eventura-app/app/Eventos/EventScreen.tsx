@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, Modal, TouchableOpacity } from 'react-native';
 import EventCard from './EventCard';
 import { fetchEventosByUserId, deleteEvento } from '../../services/eventService';
@@ -13,11 +13,11 @@ type Evento = {
   nombre_evento?: string;
   fecha?: string;
   imagen?: string;
+  id_usuario?: number | string; // <-- asegúrate de incluir este campo
 };
 
 type RootStackParamList = {
   EditEventScreen: { evento: Evento };
-  // Puedes agregar más screens aquí si lo necesitas
 };
 
 export default function EventScreen() {
@@ -25,8 +25,14 @@ export default function EventScreen() {
   const [loading, setLoading] = useState(true);
   const [eventoAEliminar, setEventoAEliminar] = useState<Evento | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [user, setUser] = useState<{ id: number | string } | null>(null);
 
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
+  // Obtener usuario autenticado al montar
+  useEffect(() => {
+    authService.getCurrentUser().then(setUser);
+  }, []);
 
   // Cargar eventos del usuario cada vez que la vista recibe foco
   useFocusEffect(
@@ -57,13 +63,13 @@ export default function EventScreen() {
   };
 
   const confirmarEliminacion = async () => {
-    const id = eventoAEliminar?.id || eventoAEliminar?.id;
+    const id = eventoAEliminar?.id;
     if (!id) return;
     setModalVisible(false);
     setLoading(true);
     try {
       await deleteEvento(id);
-      setEventos(prev => prev.filter(ev => (ev.id|| ev.id) !== id));
+      setEventos(prev => prev.filter(ev => ev.id !== id));
       Alert.alert('Éxito', 'Evento eliminado correctamente');
     } catch (error: any) {
       Alert.alert('Error', error?.message || 'No se pudo eliminar el evento');
@@ -93,7 +99,14 @@ export default function EventScreen() {
             fecha={item.fecha || ''}
             imagen={item.imagen}
             onDelete={() => handleDelete(item)}
-            onEdit={() => navigation.navigate('EditEventScreen', { evento: item })}
+            onEdit={() =>
+              navigation.navigate('EditEventScreen', {
+                evento: {
+                  ...item,
+                  id_usuario: item.id_usuario ?? user?.id, // <-- asegura que siempre tenga id_usuario
+                },
+              })
+            }
           />
         )}
         ListEmptyComponent={<Text>No tienes eventos.</Text>}
