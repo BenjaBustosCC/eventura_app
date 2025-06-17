@@ -53,12 +53,10 @@ export default function ProfileScreen({
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.avatarContainer}>
           <Image
-            source={require("../../assets/kumito.jpg")}
+            source={require("../../assets/brujula.png")}
             style={styles.avatar}
           />
-          <TouchableOpacity style={styles.editIcon}>
-            <MaterialIcons name="edit" size={20} color="#fff" />
-          </TouchableOpacity>
+
         </View>
         <View>
           <Text style={styles.nombre}>{userData.name}</Text>

@@ -68,6 +68,11 @@ export default function BottomTabNavigator({
       {userRole === 1 && (
         <>
           <Tab.Screen name="Gestión de Usuarios" component={UserManagement} options={{ headerShown: false }} />
+          <Tab.Screen name="Perfil" options={{ headerShown: false }}>
+            {(props) => (
+              <ProfileScreen {...props} setIsAuthenticated={setIsAuthenticated} />
+            )}
+          </Tab.Screen>
         </>
       )}
     </Tab.Navigator>

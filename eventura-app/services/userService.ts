@@ -24,6 +24,14 @@ export const userService = {
       } catch (error) {
         throw new Error("La respuesta del servidor no es JSON válido.");
       }
-    },  
+    },
+    
+    getAllUsers: async () => {
+    const response = await fetch(`${API_URL}/usuarios`);
+    if (!response.ok) {
+      throw new Error('Error al obtener usuarios');
+    }
+    return await response.json();
+  },
   };
   

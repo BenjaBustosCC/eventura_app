@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const SECRET_KEY = "your_secret_key";
 
 //Registrar un nuevo usuario
-exports.registerUser = async (req, res) => {
+registerUser = async (req, res) => {
   const { name, email, password } = req.body;
   let conn;
   try {
@@ -29,4 +29,27 @@ exports.registerUser = async (req, res) => {
     console.error("Error al registrar usuario:", error);
     res.status(500).json({ error: "Error al registrar usuario" });
   }
+};
+
+getAllUsers = async (req, res) => {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const result = await conn.execute(
+      `SELECT * FROM usuarios`, // Ajusta el nombre de la tabla si es necesario
+      [],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    await conn.close();
+    res.status(200).json(result.rows);
+  } catch (error) {
+    if (conn) await conn.close();
+    console.error("Error al obtener usuarios:", error);
+    res.status(500).json({ error: "Error al obtener usuarios" });
+  }
+};
+
+module.exports = {
+  registerUser,
+  getAllUsers
 };
