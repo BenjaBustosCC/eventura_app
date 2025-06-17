@@ -13,11 +13,13 @@ import { authService } from "../../services/authService";
 type LoginScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, "Login">;
   setIsAuthenticated: (value: boolean) => void; // Nuevo prop
+  setUserRole: (role: number) => void; // Agregado para manejar el rol del usuario
 };
 
 export default function LoginScreen({
   navigation,
   setIsAuthenticated,
+  setUserRole,
 }: LoginScreenProps) {
   const { email, setEmail, password, setPassword, isLoading, handleLogin } =
     useLogin(); // Ahora no necesita navigation
@@ -41,7 +43,9 @@ export default function LoginScreen({
   const onSubmit = async () => {
     const success = await handleLogin();
     if (success) {
-      setIsAuthenticated(true); // Notifica a App.jsx
+      const userData = await authService.getCurrentUser();
+      setUserRole(userData?.role ?? 2); // Guarda el rol
+      setIsAuthenticated(true);
     }
   };
 

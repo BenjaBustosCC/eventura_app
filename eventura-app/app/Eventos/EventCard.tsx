@@ -14,10 +14,10 @@ export default function HomeCard({ nombre, fecha, imagen, onEdit, onDelete }: Ho
     <View style={styles.card}>
       <View style={styles.row}>
         <Image
-          source={{ uri: imagen || 'https://via.placeholder.com/100x100/ff9800/ffffff?text=Evento' }}
-          style={styles.imagen}
-          resizeMode="cover"
-        />
+                source={{ uri: imagen || 'https://via.placeholder.com/200x120/ff9800/ffffff?text=Evento' }}
+                style={styles.imagen}
+                resizeMode="cover"
+              />
         <View style={styles.info}>
           <Text style={styles.nombre}>{nombre}</Text>
           <Text style={styles.fecha}>{fecha}</Text>

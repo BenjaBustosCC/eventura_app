@@ -19,25 +19,29 @@ interface AuthResponse {
 
 export const authService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(credentials),
-    });
+  // Limpia datos anteriores antes de guardar los nuevos
+  await AsyncStorage.removeItem('userToken');
+  await AsyncStorage.removeItem('userData');
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Error de autenticación: ${errorText}`);
-    }
+  const response = await fetch(`${API_URL}/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(credentials),
+  });
 
-    const data = await response.json();
-    await AsyncStorage.setItem('userToken', data.token);
-    await AsyncStorage.setItem('userData', JSON.stringify(data.user));
-    
-    return data;
-  },
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error de autenticación: ${errorText}`);
+  }
+
+  const data = await response.json();
+  await AsyncStorage.setItem('userToken', data.token);
+  await AsyncStorage.setItem('userData', JSON.stringify(data.user));
+  
+  return data;
+},
 
   logout: async (): Promise<void> => {
     await AsyncStorage.removeItem('userToken');
