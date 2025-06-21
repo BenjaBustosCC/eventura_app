@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { fetchTiposEvento, createEvento } from "../../services/eventService";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
 type AddEventFormProps = {
   userId: number | string;
@@ -35,6 +36,12 @@ export default function AddEventForm({ userId, onSuccess }: AddEventFormProps) {
   const [showHoraInicio, setShowHoraInicio] = useState(false);
   const [showHoraTermino, setShowHoraTermino] = useState(false);
 
+  const [lugarEvento, setLugarEvento] = useState('');
+  const [latitud, setLatitud] = useState<number | null>(null);
+  const [longitud, setLongitud] = useState<number | null>(null);
+
+  const googleRef = useRef<any>(null);
+
   useEffect(() => {
     fetchTiposEvento()
       .then((data) => {
@@ -49,6 +56,11 @@ export default function AddEventForm({ userId, onSuccess }: AddEventFormProps) {
   }, []);
 
   const handleSubmit = async () => {
+    if (!lugarEvento || latitud === null || longitud === null) {
+      Alert.alert('Error', 'Debes seleccionar un lugar válido');
+      return;
+    }
+
     try {
       await createEvento({
         nombre_evento: nombre,
@@ -56,7 +68,9 @@ export default function AddEventForm({ userId, onSuccess }: AddEventFormProps) {
         fecha_evento: fecha.toISOString().split("T")[0],
         hora_inicio_evento: horaInicio.toTimeString().slice(0, 5),
         hora_termino_evento: horaTermino.toTimeString().slice(0, 5),
-        lugar_evento: "placeholder", // Placeholder, puedes agregar un campo para el lugar si es necesario
+        lugar_evento: lugarEvento,
+        latitud,
+        longitud,
         id_usuario: userId,
         id_tipo_evento: tipoEventoId,
       });
@@ -94,6 +108,28 @@ export default function AddEventForm({ userId, onSuccess }: AddEventFormProps) {
         onChangeText={setDescripcion}
         placeholder="Descripción del evento"
         multiline
+      />
+
+      <Text style={styles.label}>Lugar del Evento</Text>
+      <GooglePlacesAutocomplete
+        ref={googleRef}
+        placeholder="Buscar dirección"
+        fetchDetails={true}
+        onPress={(data, details = null) => {
+          setLugarEvento(data.description);
+          if (details?.geometry?.location) {
+            setLatitud(details.geometry.location.lat);
+            setLongitud(details.geometry.location.lng);
+          }
+        }}
+        query={{
+          key: 'AIzaSyD6w_NILALZTacu5qTPC2n0qUmI4isCUog',
+          language: 'es',
+        }}
+        styles={{
+          textInput: styles.input,
+          listView: { backgroundColor: '#fff' },
+        }}
       />
 
       <Text style={styles.label}>Fecha del Evento</Text>

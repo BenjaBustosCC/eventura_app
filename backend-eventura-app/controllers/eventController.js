@@ -235,23 +235,29 @@ getEventsByUserId: async (req, res) => {
 
   // eliminar evento
   deleteEvent: async (req, res) => {
-    const { id } = req.params;
     let conn;
+    const { id } = req.params;
+
     try {
       conn = await pool.getConnection();
+
       const result = await conn.execute(
-        `DELETE FROM evento WHERE id_evento = :1`,
-        [id],
+        `DELETE FROM evento WHERE id_evento = :1`, // parámetro posicional
+        [parseInt(id)], // array de parámetros, orden importa
         { autoCommit: true }
       );
 
-      if (result.rowsAffected && result.rowsAffected > 0) {
-        res.json({ message: 'Evento eliminado exitosamente' });
-      } else {
-        res.status(404).json({ message: 'Evento no encontrado' });
+      if (result.rowsAffected === 0) {
+        await conn.close();
+        return res.status(404).json({ message: 'Evento no encontrado' });
       }
+
+      await conn.close();
+      res.json({ message: 'Evento eliminado exitosamente' });
+
     } catch (error) {
-      console.error('Error al eliminar evento:', error);
+      console.error("Error al eliminar evento:", error.message);
+      if (conn) await conn.close();
       res.status(500).json({ error: error.message });
     } finally {
       if (conn) {

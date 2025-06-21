@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import { StyleSheet } from "react-native";
@@ -5,15 +6,20 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import SplashScreen from "./app/SplashScreen/SplashScreen";
 import LoginScreen from "./app/Login/LoginScreen";
-import HomeScreen from "./app/Home/HomeScreen";
 import RegisterScreen from "./app/Register/RegisterScreen";
+import EditScreen from "./app/EditEventos/EditScreen";
 import BottomTabNavigator from "./Navigation/BottomTab";
+import { enableScreens } from 'react-native-screens';
 
-const Stack = createStackNavigator();
+import { RootStackParamList } from './types';  // <-- Importa el tipo
+
+enableScreens();
+
+const Stack = createStackNavigator<RootStackParamList>(); // <-- Aplica el tipo al stack
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Estado de autenticación
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -30,27 +36,28 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!isAuthenticated ? (
-          // Pantallas de autenticación (sin tabs)
           <>
             <Stack.Screen name="Login">
               {(props) => (
-                <LoginScreen
-                  {...props}
-                  setIsAuthenticated={setIsAuthenticated}
-                />
+                <LoginScreen {...props} setIsAuthenticated={setIsAuthenticated} />
               )}
             </Stack.Screen>
             <Stack.Screen name="Register" component={RegisterScreen} />
           </>
         ) : (
-          // Pantallas principales (con tabs)
-          <Stack.Screen
-            name="HomeTabs"
-            // Usar children para pasar props personalizados
-            children={(props) => (
-              <BottomTabNavigator {...props} setIsAuthenticated={setIsAuthenticated} />
-            )}
-          />
+          <>
+            <Stack.Screen name="HomeTabs">
+              {(props) => (
+                <BottomTabNavigator {...props} setIsAuthenticated={setIsAuthenticated} />
+              )}
+            </Stack.Screen>
+
+            <Stack.Screen
+              name="EditarEvento"
+              component={EditScreen}
+              options={{ headerShown: true, title: "Editar Evento" }}
+            />
+          </>
         )}
       </Stack.Navigator>
       <StatusBar style="auto" />
