@@ -10,6 +10,8 @@ import RegisterScreen from "./app/Register/RegisterScreen";
 import BottomTabNavigator from "./Navigation/BottomTab";
 import { authService } from "./services/authService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import DetalleEventoScreen from "./app/DetalleEvento/DetalleEventoScreen";
+
 
 const Stack = createStackNavigator();
 
@@ -56,22 +58,23 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {!isAuthenticated ? (
-          <>
-            <Stack.Screen name="Login">
-              {(props) => (
-                <LoginScreen
-                  {...props}
-                  setIsAuthenticated={setIsAuthenticated}
-                  setUserRole={setUserRole}
-                />
-              )}
-            </Stack.Screen>
-            <Stack.Screen name="Register" component={RegisterScreen} />
-          </>
-        ) : (
+  <NavigationContainer>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {!isAuthenticated ? (
+        <>
+          <Stack.Screen name="Login">
+            {(props) => (
+              <LoginScreen
+                {...props}
+                setIsAuthenticated={setIsAuthenticated}
+                setUserRole={setUserRole}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="Register" component={RegisterScreen} />
+        </>
+      ) : (
+        <>
           <Stack.Screen name="MainTabs">
             {(props) => (
               <BottomTabNavigator
@@ -81,11 +84,13 @@ export default function App() {
               />
             )}
           </Stack.Screen>
-        )}
-      </Stack.Navigator>
-      <StatusBar style="auto" />
-    </NavigationContainer>
-  );
+          <Stack.Screen name="DetalleEventoScreen" component={DetalleEventoScreen} />
+        </>
+      )}
+    </Stack.Navigator>
+    <StatusBar style="auto" />
+  </NavigationContainer>
+);
 }
 
 const styles = StyleSheet.create({
