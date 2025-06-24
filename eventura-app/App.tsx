@@ -9,7 +9,7 @@ import HomeScreen from "./app/Home/HomeScreen";
 import RegisterScreen from "./app/Register/RegisterScreen";
 import BottomTabNavigator from "./Navigation/BottomTab";
 import { authService } from "./services/authService";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Stack = createStackNavigator();
 
@@ -20,19 +20,39 @@ export default function App() {
 
   useEffect(() => {
     const restoreSession = async () => {
-      const token = await authService.getToken();
-      if (token) {
-        setIsAuthenticated(true);
+      try {
+        //comentar y descomentar para dejar la sesion
+        await AsyncStorage.clear();
+
+        const token = await authService.getToken();
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+
         const user = await authService.getCurrentUser();
-        setUserRole(user?.role ?? user?.id_rol ?? null);
+        const role = Number(user?.role ?? user?.id_rol);
+
+        if (![1, 2, 3].includes(role)) {
+          await authService.logout();
+          setLoading(false);
+          return;
+        }
+
+        setIsAuthenticated(true);
+        setUserRole(role);
+      } catch (error) {
+        console.error("Error restaurando sesión:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
+
     restoreSession();
   }, []);
 
   if (loading) {
-    return <SplashScreen />; // O un ActivityIndicator
+    return <SplashScreen />;
   }
 
   return (

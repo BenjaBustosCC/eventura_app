@@ -8,6 +8,7 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  Button,
 } from "react-native";
 import { generarItinerario } from "./ChatService";
 
@@ -31,8 +32,13 @@ export default function ItineraryModal({ visible, onClose }: ItineraryModalProps
     if (!userInput.trim()) return;
 
     setLoading(true);
-    const resultado = await generarItinerario(userInput);
-    setRespuesta(resultado);
+    try {
+      const respuestaGenerada = await generarItinerario(userInput);
+      setRespuesta(respuestaGenerada);
+    } catch (error) {
+      setRespuesta("Ocurrió un error generando el itinerario.");
+      console.error(error);
+    }
     setLoading(false);
   };
 

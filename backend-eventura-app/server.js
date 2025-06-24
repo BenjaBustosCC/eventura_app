@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -6,6 +8,7 @@ const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require("./routes/eventRoutes");
 const eventTypeRoutes = require("./routes/eventTypeRoutes");
 const authRoutes = require('./routes/authRoutes');
+const itineraryRoutes = require('./routes/itineraryRoutes');
 
 const app = express();
 const PORT = 8081;
@@ -27,6 +30,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/eventos", eventRoutes);
 app.use("/api/tipos-evento", eventTypeRoutes);
+app.use("/api/itinerary", itineraryRoutes);
 
 
 // Iniciar el servidor

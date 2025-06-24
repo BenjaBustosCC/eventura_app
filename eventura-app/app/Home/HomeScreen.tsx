@@ -11,7 +11,8 @@ import HomeCard from "./HomeCard";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import SearchBar from "../../Components/SearchBar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
+import ItineraryModal from "../ItineraryAssistant/ItineraryModal";
 
 type Evento = {
   id_evento?: number | string;
@@ -27,18 +28,19 @@ export default function HomeScreen() {
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [filteredEventos, setFilteredEventos] = useState<Evento[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const navigation = useNavigation();
 
   const handleSearch = (text: string) => {
     setSearchText(text);
-    if (text.trim() === '') {
+    if (text.trim() === "") {
       setFilteredEventos(eventos);
     } else {
       const lower = text.toLowerCase();
       setFilteredEventos(
-        eventos.filter(ev =>
-          (ev.nombre || ev.titulo || '').toLowerCase().includes(lower)
+        eventos.filter((ev) =>
+          (ev.nombre || ev.titulo || "").toLowerCase().includes(lower)
         )
       );
     }
@@ -46,11 +48,11 @@ export default function HomeScreen() {
 
   const handleBrujulaPress = () => {
     console.log("Brujula presionada");
-    // Aquí puedes agregar la funcionalidad que desees al presionar la brújula
+    setIsModalVisible(true);
   };
 
   const handlePress = (evento: Evento) => {
-    navigation.navigate('DetalleEventoScreen', { evento });
+    navigation.navigate("DetalleEventoScreen", { evento });
   };
 
   useFocusEffect(
@@ -97,6 +99,12 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
         />
       </View>
+      {isModalVisible && (
+        <ItineraryModal
+          visible={isModalVisible}
+          onClose={() => setIsModalVisible(false)}
+        />
+      )}
     </View>
   );
 }

@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { API_URL } from '@env';
 
 export type User = {
@@ -12,7 +14,7 @@ export const userService = {
         email: string;
         password: string;
     }) => {
-      const response = await fetch(`${API_URL}/users/register`, {
+      const response = await fetch(`${API_URL}/users/usuarios`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
