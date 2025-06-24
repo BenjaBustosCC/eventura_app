@@ -8,7 +8,7 @@ const eventTypeRoutes = require("./routes/eventTypeRoutes");
 const authRoutes = require('./routes/authRoutes');
 
 const app = express();
-const PORT = 3001;
+const PORT = 8081;
 
 app.use(cors({
   origin: "*",
