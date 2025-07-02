@@ -5,7 +5,8 @@ import * as Location from 'expo-location';
 import Slider from '@react-native-community/slider';
 import styles from './styles';
 import { fetchEventos } from '../../services/eventService';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import DetailEventoScreen from '../DetalleEvento/DetalleEventoScreen';
 
 type Event = {
   id: string | number;
@@ -22,6 +23,7 @@ export default function MapForm() {
   const [events, setEvents] = useState<Event[]>([]);
   const [radioKm, setRadioKm] = useState(5);
   const brujulaIcon = require('../../assets/brujula.png');
+  const navigation = useNavigation();
 
   // función para calcular distancia entre coordenadas
   function calcularDistanciaKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -138,6 +140,9 @@ export default function MapForm() {
             }}
             title={event.titulo}
             description={`${event.fecha}`}
+            onPress ={() => {
+              navigation.navigate("DetalleEventoScreen", { evento: event});
+            }}
           >
             <Image source={brujulaIcon} style={styles.brujulaIcon} />
           </Marker>
@@ -153,9 +158,9 @@ export default function MapForm() {
           step={0.5}
           value={radioKm}
           onValueChange={setRadioKm}
-          minimumTrackTintColor="#1EB1FC"
+          minimumTrackTintColor="#d32f2f"
           maximumTrackTintColor="#d3d3d3"
-          thumbTintColor="#1EB1FC"
+          thumbTintColor="#d32f2f"
         />
       </View>
     </View>

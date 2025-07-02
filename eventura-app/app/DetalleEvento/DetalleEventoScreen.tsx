@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Linking, Alert } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, RouteProp, userRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 
 type Evento = {
@@ -23,16 +23,16 @@ type Evento = {
   longitud?: number;
 };
 
-type RouteParams = {
-  evento?: Evento;
+type RootStackParamList = {
+  DetalleEventoScreen: { evento: Evento };
+  
 };
 
 export default function DetalleEventoScreen() {
-  const route = useRoute();
+  const route = useRoute<RouteProp<RootStackParamList, 'DetalleEventoScreen'>>();
+  const { evento } = route.params;
   const navigation = useNavigation();
-  // @ts-ignore
-  const { evento } = (route as any).params || {};
-
+  
   if (!evento) {
     return (
       <View style={styles.container}>

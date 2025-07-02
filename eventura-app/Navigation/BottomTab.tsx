@@ -43,8 +43,15 @@ export default function BottomTabNavigator({
       {/* Rol 2: Home, Mapa, Perfil */}
       {userRole === 2 && (
         <>
+        {/*PARA QUE LAS NAVEGACIONES (TABS Y STACK) FUNCIONEN JUNTAS HAY QUE QUITAR EL COMPONENTE
+        Y USAR LOS PROPS (VER TAB.MAPA-TAB.PERFIL, ETC) PARA QUE SE COMBINEN
+        Y EL STACK PUEDA SER USADO EN LOS TABS--CREO-- PERO ASI ME HA FUNCIONADO*/}
           <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-          <Tab.Screen name="Mapa" component={MapaScreen} options={{ headerShown: false }} />
+          <Tab.Screen name="Mapa" options={{ headerShown: false }} >
+            {(props) => (
+              <MapaScreen {...props}/>
+            )}
+          </Tab.Screen>
           <Tab.Screen name="Perfil" options={{ headerShown: false }}>
             {(props) => (
               <ProfileScreen {...props} setIsAuthenticated={setIsAuthenticated} />
