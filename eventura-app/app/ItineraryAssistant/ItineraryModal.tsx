@@ -50,7 +50,7 @@ export default function ItineraryModal({ visible, onClose }: ItineraryModalProps
 
           <TextInput
             style={styles.input}
-            placeholder="Escribe tu idea de itinerario..."
+            placeholder="Quiero visitar..."
             value={userInput}
             onChangeText={setUserInput}
             multiline
