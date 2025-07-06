@@ -81,7 +81,7 @@ export default function EventScreen() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <View style={styles.containerLoading}>
         <ActivityIndicator size="large" color="#ff9800" />
       </View>
     );
@@ -110,6 +110,7 @@ export default function EventScreen() {
           />
         )}
         ListEmptyComponent={<Text>No tienes eventos.</Text>}
+        showsVerticalScrollIndicator={false}
       />
 
       {/* Modal de confirmación */}
@@ -152,6 +153,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingHorizontal: 16,
     paddingTop: 32,
+  },
+  containerLoading: {
+    flex: 1,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 24,

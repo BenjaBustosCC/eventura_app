@@ -1,20 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, ActivityIndicator, Alert, Image, Text } from 'react-native';
-import MapView, { Region, Marker } from 'react-native-maps';
-import * as Location from 'expo-location';
-import Slider from '@react-native-community/slider';
-import styles from './styles';
-import { fetchEventos } from '../../services/eventService';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import DetailEventoScreen from '../DetalleEvento/DetalleEventoScreen';
+import React, { useState, useEffect, useCallback } from "react";
+import { View, ActivityIndicator, Alert, Image, Text } from "react-native";
+import MapView, { Region, Marker } from "react-native-maps";
+import * as Location from "expo-location";
+import Slider from "@react-native-community/slider";
+import styles from "./styles";
+import { fetchEventos } from "../../services/eventService";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import DetailEventoScreen from "../DetalleEvento/DetalleEventoScreen";
 
-type Event = {
-  id: string | number;
-  titulo: string;
-  fecha: string;
+type Evento = {
+  id_evento?: number | string;
+  nombre?: string;
+  titulo?: string;
+  fecha?: string;
+  descripcion?: string;
   imagen?: string;
-  latitud: number;
-  longitud: number;
 };
 
 export default function MapForm() {
@@ -22,11 +22,16 @@ export default function MapForm() {
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<Event[]>([]);
   const [radioKm, setRadioKm] = useState(5);
-  const brujulaIcon = require('../../assets/brujula.png');
+  const brujulaIcon = require("../../assets/brujula.png");
   const navigation = useNavigation();
 
   // función para calcular distancia entre coordenadas
-  function calcularDistanciaKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  function calcularDistanciaKm(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ): number {
     const R = 6371; // km
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
@@ -43,8 +48,11 @@ export default function MapForm() {
     (async () => {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-          Alert.alert('Permiso denegado', 'Se necesita permiso para acceder a la ubicación.');
+        if (status !== "granted") {
+          Alert.alert(
+            "Permiso denegado",
+            "Se necesita permiso para acceder a la ubicación."
+          );
           setLoading(false);
           return;
         }
@@ -57,8 +65,8 @@ export default function MapForm() {
           longitudeDelta: 0.01,
         });
       } catch (error) {
-        console.error('Error al obtener ubicación', error);
-        Alert.alert('Error', 'No se pudo obtener la ubicación');
+        console.error("Error al obtener ubicación", error);
+        Alert.alert("Error", "No se pudo obtener la ubicación");
       }
     })();
   }, []);
@@ -91,13 +99,17 @@ export default function MapForm() {
               latitud: event.latitud,
               longitud: event.longitud,
               imagen: event.imagen,
+              descripcion: event.descripcion,
+              descripcion_evento: event.descripcion_evento,
+              tipo_evento_nombre: event.tipo_evento_nombre,
+              lugar_evento: event.lugar_evento,
             }));
 
           setEvents(validEvents);
           setLoading(false);
         } catch (error) {
-          console.error('Error al obtener eventos', error);
-          Alert.alert('Error', 'No se pudieron cargar los eventos');
+          console.error("Error al obtener eventos", error);
+          Alert.alert("Error", "No se pudieron cargar los eventos");
           setLoading(false);
         }
       };
@@ -108,15 +120,26 @@ export default function MapForm() {
 
   if (loading || !region) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+      <View
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
 
   // filtrar eventos según el radio actual y la ubicación
-  const eventosFiltrados = events.filter(event =>
-    calcularDistanciaKm(region.latitude, region.longitude, event.latitud, event.longitud) <= radioKm
+  const eventosFiltrados = events.filter(
+    (event) =>
+      calcularDistanciaKm(
+        region.latitude,
+        region.longitude,
+        event.latitud,
+        event.longitud
+      ) <= radioKm
   );
 
   return (
@@ -131,7 +154,7 @@ export default function MapForm() {
         showsUserLocation
         showsMyLocationButton
       >
-        {eventosFiltrados.map(event => (
+        {eventosFiltrados.map((event) => (
           <Marker
             key={event.id}
             coordinate={{
@@ -140,8 +163,8 @@ export default function MapForm() {
             }}
             title={event.titulo}
             description={`${event.fecha}`}
-            onPress ={() => {
-              navigation.navigate("DetalleEventoScreen", { evento: event});
+            onPress={() => {
+              navigation.navigate("DetalleEventoScreen", { evento: event });
             }}
           >
             <Image source={brujulaIcon} style={styles.brujulaIcon} />
@@ -152,7 +175,7 @@ export default function MapForm() {
       <View style={styles.sliderContainer}>
         <Text>Radio de búsqueda: {radioKm.toFixed(1)} km</Text>
         <Slider
-          style={{ width: '100%', height: 40 }}
+          style={{ width: "100%", height: 40 }}
           minimumValue={1}
           maximumValue={20}
           step={0.5}

@@ -93,7 +93,7 @@ const eventController = {
       res.json({
         id: row[0],
         nombre: row[1],
-        descripcion: row[2],
+        descripcion_evento: row[2],
         fecha: row[3],
         hora_inicio: row[4],
         hora_termino: row[5],

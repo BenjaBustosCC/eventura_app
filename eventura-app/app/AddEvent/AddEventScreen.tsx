@@ -10,6 +10,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Image,
+  Keyboard,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { fetchTiposEvento, createEvento } from "../../services/eventService";
@@ -42,6 +43,7 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
   // Imagen
   const [imagen, setImagen] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
+  const [formKey, setFormKey] = useState(0); // Para forzar el reseteo visual
 
   useEffect(() => {
     authService.getCurrentUser().then((user) => {
@@ -91,7 +93,6 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
         Alert.alert("Error", "Debes seleccionar un lugar válido");
         return;
       }
-
       const evento = {
         nombre_evento: nombre,
         descripcion_evento: descripcion,
@@ -107,6 +108,19 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
       };
       await createEvento(evento);
       Alert.alert("Éxito", "Evento creado correctamente");
+      setNombre("");
+      setDescripcion("");
+      setLugar("");
+      setLatitud(null);
+      setLongitud(null);
+      setImagen(null);
+      setFecha(new Date());
+      setHoraInicio(new Date());
+      setHoraTermino(new Date());
+      setTipoEventoId(tiposEvento[0]?.id || "");
+      setSugerencias([]); // Limpiar sugerencias
+      Keyboard.dismiss(); // Ocultar teclado
+      setFormKey((k) => k + 1); // Forzar rerender visual
       if (onSuccess) onSuccess();
     } catch (error: any) {
       Alert.alert("Error", `No se pudo crear el evento: ${error?.message || error}`);
@@ -151,6 +165,7 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
 
   return (
     <ScrollView
+      key={formKey}
       style={{ flex: 1, backgroundColor: "#fff", paddingTop: insets.top }}
       contentContainerStyle={[styles.container, { paddingBottom: 32 }]}
       keyboardShouldPersistTaps="handled"
