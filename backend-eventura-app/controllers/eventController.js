@@ -10,7 +10,7 @@ const eventController = {
       const result = await conn.execute(
         `SELECT e.id_evento, e.nombre_evento, e.descripcion_evento, 
                 TO_CHAR(e.fecha_evento, 'DD-MM-YYYY'), TO_CHAR(e.hora_inicio_evento, 'HH24:MI'), 
-                e.latitud, e.longitud, e.lugar_evento, e.imagen, te.nombre_tipo_evento
+                e.latitud, e.longitud, e.lugar_evento, e.imagen, te.nombre_tipo_evento, e.id_estado
         FROM evento e
         LEFT JOIN tipo_evento te ON e.id_tipo_evento = te.id_tipo_evento
         ORDER BY e.fecha_evento ASC`
@@ -27,7 +27,7 @@ const eventController = {
       };
 
       const eventos = await Promise.all(result.rows.map(async (row) => {
-      const [id, nombre, descripcion, fecha, hora, latitud, longitud, lugar_evento, imagenLob, tipo_evento_nombre] = row;
+        const [id, nombre, descripcion, fecha, hora, latitud, longitud, lugar_evento, imagenLob, tipo_evento_nombre, id_estado] = row;
         let imagenBase64 = null;
         if (imagenLob) {
           if (Buffer.isBuffer(imagenLob)) {
@@ -51,7 +51,8 @@ const eventController = {
           latitud,
           longitud,
           lugar_evento,
-          tipo_evento_nombre, // <-- ahora sí lo envías al frontend
+          tipo_evento_nombre,
+          id_estado, // <-- ahora sí lo envías al frontend
         };
       }));
       res.json(eventos);
@@ -103,6 +104,7 @@ const eventController = {
         id_usuario: row[9],
         id_tipo_evento: row[10],
         imagen: imagenBase64,
+        id_estado: row[12], // <-- nuevo campo
       });
 
     } catch (error) {
@@ -132,7 +134,8 @@ const eventController = {
           descripcion_evento,
           TO_CHAR(fecha_evento, 'YYYY-MM-DD') AS fecha_formateada, 
           TO_CHAR(hora_inicio_evento, 'HH24:MI') AS hora_formateada,
-          TO_CHAR(hora_termino_evento, 'HH24:MI') AS hora_termino_formateada
+          TO_CHAR(hora_termino_evento, 'HH24:MI') AS hora_termino_formateada,
+          id_estado
         FROM evento
         WHERE id_usuario = :1
         ORDER BY fecha_evento ASC`,
@@ -144,7 +147,8 @@ const eventController = {
         titulo: row[1],
         descripcion: row[2],
         fecha: `${row[3]} a las ${row[4]}`,
-        imagen: 'https://placehold.co/200x120/ff9800/ffffff?text=Evento'
+        imagen: 'https://placehold.co/200x120/ff9800/ffffff?text=Evento',
+        id_estado: row[6], // <-- nuevo campo
       }));
 
       res.json(eventos);
@@ -157,68 +161,7 @@ const eventController = {
   },
 
   // Crear evento (con imagen base64)
-  createEvent: async (req, res) => {
-    const {
-      nombre_evento,
-      descripcion_evento,
-      fecha_evento,
-      hora_inicio_evento,
-      hora_termino_evento,
-      lugar_evento,
-      latitud,
-      longitud,
-      id_usuario,
-      id_tipo_evento,
-      imagen // <-- base64 string
-    } = req.body;
-
-    // Validación de campos requeridos
-    if (!nombre_evento || !fecha_evento || !id_usuario || !id_tipo_evento) {
-      return res.status(400).json({
-        error: "Los campos nombre, fecha, usuario y tipo son obligatorios"
-      });
-    }
-
-    let conn;
-    try {
-      // Decodifica la imagen base64 a buffer (si viene)
-      let imagenBuffer = null;
-      if (imagen) {
-        // Si viene con prefijo data:image, quítalo
-        const base64Data = imagen.includes(',') ? imagen.split(',')[1] : imagen;
-        imagenBuffer = Buffer.from(base64Data, 'base64');
-      }
-
-      conn = await pool.getConnection();
-      await conn.execute(
-        `INSERT INTO evento (
-          nombre_evento, descripcion_evento, fecha_evento, 
-          hora_inicio_evento, hora_termino_evento, lugar_evento,
-          latitud, longitud, id_usuario, id_tipo_evento, imagen
-        ) VALUES (
-          :1, :2, TO_DATE(:3, 'YYYY-MM-DD'), 
-          TO_TIMESTAMP(:4, 'HH24:MI'), TO_TIMESTAMP(:5, 'HH24:MI'), :6, :7, :8, :9, :10, :11
-        )`,
-        [
-          nombre_evento, descripcion_evento, fecha_evento,
-          hora_inicio_evento, hora_termino_evento, lugar_evento,
-          latitud, longitud, id_usuario, id_tipo_evento, imagenBuffer
-        ],
-        { autoCommit: true }
-      );
-      await conn.close();
-      res.status(201).json({ message: 'Evento creado correctamente' });
-    } catch (error) {
-      if (conn) await conn.close();
-      res.status(500).json({ error: error.message });
-    }
-  },
-
-  // Actualizar evento (sin imagen)
-  // Actualizar evento (con imagen opcional)
-// Actualizar evento (con imagen opcional, compatible con BLOB)
-updateEvent: async (req, res) => {
-  const { id } = req.params;
+createEvent: async (req, res) => {
   const {
     nombre_evento,
     descripcion_evento,
@@ -230,8 +173,16 @@ updateEvent: async (req, res) => {
     longitud,
     id_usuario,
     id_tipo_evento,
-    imagen // <-- base64 string opcional
+    // id_estado, // <-- ya no lo tomamos del body
+    imagen // <-- base64 string
   } = req.body;
+
+  // Validación de campos requeridos
+  if (!nombre_evento || !fecha_evento || !id_usuario || !id_tipo_evento) {
+    return res.status(400).json({
+      error: "Los campos nombre, fecha, usuario y tipo son obligatorios"
+    });
+  }
 
   let conn;
   try {
@@ -243,25 +194,34 @@ updateEvent: async (req, res) => {
     }
 
     conn = await pool.getConnection();
+    await conn.execute(
+      `INSERT INTO evento (
+        nombre_evento, descripcion_evento, fecha_evento, 
+        hora_inicio_evento, hora_termino_evento, lugar_evento,
+        latitud, longitud, id_usuario, id_tipo_evento, id_estado, imagen
+      ) VALUES (
+        :1, :2, TO_DATE(:3, 'YYYY-MM-DD'), 
+        TO_TIMESTAMP(:4, 'HH24:MI'), TO_TIMESTAMP(:5, 'HH24:MI'), :6, :7, :8, :9, :10, :11, :12
+      )`,
+      [
+        nombre_evento, descripcion_evento, fecha_evento,
+        hora_inicio_evento, hora_termino_evento, lugar_evento,
+        latitud, longitud, id_usuario, id_tipo_evento, 1, imagenBuffer // <-- aquí va el 1 fijo
+      ],
+      { autoCommit: true }
+    );
+    await conn.close();
+    res.status(201).json({ message: 'Evento creado correctamente' });
+  } catch (error) {
+    if (conn) await conn.close();
+    res.status(500).json({ error: error.message });
+  }
+},
 
-    let query = `
-      UPDATE evento SET
-        nombre_evento = :1,
-        descripcion_evento = :2,
-        fecha_evento = TO_DATE(:3, 'YYYY-MM-DD'),
-        hora_inicio_evento = TO_TIMESTAMP(:4, 'HH24:MI'),
-        hora_termino_evento = TO_TIMESTAMP(:5, 'HH24:MI'),
-        lugar_evento = :6,
-        latitud = :7,
-        longitud = :8,
-        id_usuario = :9,
-        id_tipo_evento = :10
-        ${imagen ? ', imagen = :11' : ''}
-      WHERE id_evento = :12
-    `;
-
-    // Arma los binds según si hay imagen o no
-    let binds = [
+  // Actualizar evento (con imagen opcional, compatible con BLOB)
+  updateEvent: async (req, res) => {
+    const { id } = req.params;
+    const {
       nombre_evento,
       descripcion_evento,
       fecha_evento,
@@ -271,31 +231,77 @@ updateEvent: async (req, res) => {
       latitud,
       longitud,
       id_usuario,
-      id_tipo_evento
-    ];
+      id_tipo_evento,
+      id_estado, // <-- nuevo campo
+      imagen // <-- base64 string opcional
+    } = req.body;
 
-    if (imagen) {
-      binds.push(imagenBuffer); // :11
-      binds.push(id);           // :12
-    } else {
-      binds.push(id);           // :11
+    let conn;
+    try {
+      // Decodifica la imagen base64 a buffer (si viene)
+      let imagenBuffer = null;
+      if (imagen) {
+        const base64Data = imagen.includes(',') ? imagen.split(',')[1] : imagen;
+        imagenBuffer = Buffer.from(base64Data, 'base64');
+      }
+
+      conn = await pool.getConnection();
+
+      let query = `
+        UPDATE evento SET
+          nombre_evento = :1,
+          descripcion_evento = :2,
+          fecha_evento = TO_DATE(:3, 'YYYY-MM-DD'),
+          hora_inicio_evento = TO_TIMESTAMP(:4, 'HH24:MI'),
+          hora_termino_evento = TO_TIMESTAMP(:5, 'HH24:MI'),
+          lugar_evento = :6,
+          latitud = :7,
+          longitud = :8,
+          id_usuario = :9,
+          id_tipo_evento = :10,
+          id_estado = :11
+          ${imagen ? ', imagen = :12' : ''}
+        WHERE id_evento = :${imagen ? 13 : 12}
+      `;
+
+      // Arma los binds según si hay imagen o no
+      let binds = [
+        nombre_evento,
+        descripcion_evento,
+        fecha_evento,
+        hora_inicio_evento,
+        hora_termino_evento,
+        lugar_evento,
+        latitud,
+        longitud,
+        id_usuario,
+        id_tipo_evento,
+        id_estado
+      ];
+
+      if (imagen) {
+        binds.push(imagenBuffer); // :12
+        binds.push(id);           // :13
+      } else {
+        binds.push(id);           // :12
+      }
+
+      const result = await conn.execute(query, binds, { autoCommit: true });
+
+      await conn.close();
+
+      if (result.rowsAffected && result.rowsAffected > 0) {
+        res.json({ message: 'Evento actualizado correctamente' });
+      } else {
+        res.status(404).json({ message: 'Evento no encontrado' });
+      }
+    } catch (error) {
+      if (conn) await conn.close();
+      console.error('Error al actualizar evento:', error);
+      res.status(500).json({ error: error.message });
     }
+  },
 
-    const result = await conn.execute(query, binds, { autoCommit: true });
-
-    await conn.close();
-
-    if (result.rowsAffected && result.rowsAffected > 0) {
-      res.json({ message: 'Evento actualizado correctamente' });
-    } else {
-      res.status(404).json({ message: 'Evento no encontrado' });
-    }
-  } catch (error) {
-    if (conn) await conn.close();
-    console.error('Error al actualizar evento:', error);
-    res.status(500).json({ error: error.message });
-  }
-},
   // Eliminar evento
   deleteEvent: async (req, res) => {
     const { id } = req.params;

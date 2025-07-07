@@ -8,6 +8,8 @@ import MapaScreen from "../app/Maps/MapScreen";
 import ProfileScreen from "../app/Profile/ProfileScreen";
 import AddScreen from "../app/AddEvent/AddEventScreen";
 import UserManagement from "../app/UserManagement/UserManagementScreen";
+import EventManagementScreen from "../app/EventManagement/EventManagementScreen";
+
 
 const Tab = createBottomTabNavigator();
 
@@ -33,6 +35,7 @@ export default function BottomTabNavigator({
           else if (route.name === "Mapa") iconName = focused ? "map" : "map-outline";
           else if (route.name === "Perfil") iconName = focused ? "person" : "person-outline";
           else if (route.name === "Gestión de Usuarios") iconName = focused ? "settings" : "settings-outline";
+          else if (route.name === "Gestión de Eventos") iconName = focused ? "albums" : "albums-outline";
           else iconName = "ellipse";
           return <Ionicons name={iconName} size={24} color={"#BB271A"} />;
         },
@@ -68,6 +71,7 @@ export default function BottomTabNavigator({
       {userRole === 1 && (
         <>
           <Tab.Screen name="Gestión de Usuarios" component={UserManagement} options={{ headerShown: false }} />
+          <Tab.Screen name="Gestión de Eventos" component={EventManagementScreen} options={{ headerShown: false }}/>
           <Tab.Screen name="Perfil" options={{ headerShown: false }}>
             {(props) => (
               <ProfileScreen {...props} setIsAuthenticated={setIsAuthenticated} />

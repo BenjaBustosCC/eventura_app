@@ -11,7 +11,7 @@ const authRoutes = require('./routes/authRoutes');
 const itineraryRoutes = require('./routes/itineraryRoutes');
 
 const app = express();
-const PORT = 8081;
+const PORT = 3001;
 
 app.use(cors({
   origin: "*",

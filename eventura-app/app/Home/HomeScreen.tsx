@@ -56,20 +56,40 @@ export default function HomeScreen() {
   };
 
   useFocusEffect(
-    React.useCallback(() => {
-      setLoading(true);
-      fetchEventos()
-        .then((data) => {
-          setEventos(data);
-          setFilteredEventos(data); // Inicializa con todos los eventos
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error(error);
-          setLoading(false);
+  React.useCallback(() => {
+    setLoading(true);
+    fetchEventos()
+      .then((data) => {
+        const today = new Date();
+        const aprobadosYFuturos = data.filter((ev: any) => {
+          const estadoOk = ev.id_estado === 2 || ev.id_estado_evento === 2;
+          // Intenta obtener la fecha en formato YYYY-MM-DD o DD-MM-YYYY
+          let fechaStr = ev.fecha_evento || ev.fecha || "";
+          let fechaEvento: Date | null = null;
+          if (/^\d{4}-\d{2}-\d{2}/.test(fechaStr)) {
+            // Formato YYYY-MM-DD
+            fechaEvento = new Date(fechaStr);
+          } else if (/^\d{2}-\d{2}-\d{4}/.test(fechaStr)) {
+            // Formato DD-MM-YYYY
+            const [d, m, y] = fechaStr.split("-");
+            fechaEvento = new Date(`${y}-${m}-${d}`);
+          }
+          return (
+            estadoOk &&
+            fechaEvento &&
+            fechaEvento.setHours(0, 0, 0, 0) >= today.setHours(0, 0, 0, 0)
+          );
         });
-    }, [])
-  );
+        setEventos(aprobadosYFuturos);
+        setFilteredEventos(aprobadosYFuturos);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error(error);
+        setLoading(false);
+      });
+  }, [])
+);
 
   if (loading) {
     return (
