@@ -23,14 +23,12 @@ export async function createEvento(evento: {
   longitud: number;
   id_usuario: number | string;
   id_tipo_evento: number | string;
-  id_estado?: number | string; // <-- Añadido
   imagen: string | null;
 }) {
   const payload = {
     ...evento,
     id_usuario: Number(evento.id_usuario),
     id_tipo_evento: Number(evento.id_tipo_evento),
-    ...(evento.id_estado !== undefined && { id_estado: Number(evento.id_estado) }), // <-- Añadido
   };
   const response = await fetch(`${API_URL}/eventos/eventos`, {
     method: 'POST',
