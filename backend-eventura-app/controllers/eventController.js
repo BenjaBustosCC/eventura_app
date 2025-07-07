@@ -123,42 +123,81 @@ const eventController = {
 
   // Obtener eventos por ID de usuario (sin imagen)
   getEventsByUserId: async (req, res) => {
-    const { userId } = req.params;
-    let conn;
-    try {
-      conn = await pool.getConnection();
-      const result = await conn.execute(
-        `SELECT 
-          id_evento, 
-          nombre_evento, 
-          descripcion_evento,
-          TO_CHAR(fecha_evento, 'YYYY-MM-DD') AS fecha_formateada, 
-          TO_CHAR(hora_inicio_evento, 'HH24:MI') AS hora_formateada,
-          TO_CHAR(hora_termino_evento, 'HH24:MI') AS hora_termino_formateada,
-          id_estado
-        FROM evento
-        WHERE id_usuario = :1
-        ORDER BY fecha_evento ASC`,
-        [userId]
-      );
+  const { userId } = req.params;
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const result = await conn.execute(
+      `SELECT 
+        id_evento, 
+        nombre_evento, 
+        descripcion_evento,
+        TO_CHAR(fecha_evento, 'YYYY-MM-DD') AS fecha_formateada, 
+        TO_CHAR(hora_inicio_evento, 'HH24:MI') AS hora_formateada,
+        TO_CHAR(hora_termino_evento, 'HH24:MI') AS hora_termino_formateada,
+        imagen,
+        id_estado
+      FROM evento
+      WHERE id_usuario = :1
+      ORDER BY fecha_evento ASC`,
+      [userId]
+    );
 
-      const eventos = result.rows.map((row) => ({
-        id: row[0],
-        titulo: row[1],
-        descripcion: row[2],
-        fecha: `${row[3]} a las ${row[4]}`,
-        imagen: 'https://placehold.co/200x120/ff9800/ffffff?text=Evento',
-        id_estado: row[6], // <-- nuevo campo
-      }));
+    // Función auxiliar para convertir LOB a Buffer
+    const lobToBuffer = (lob) => {
+      return new Promise((resolve, reject) => {
+        const chunks = [];
+        lob.on('data', (chunk) => chunks.push(chunk));
+        lob.on('end', () => resolve(Buffer.concat(chunks)));
+        lob.on('error', reject);
+      });
+    };
 
-      res.json(eventos);
-    } catch (error) {
-      console.error("Error al obtener eventos del usuario:", error);
-      res.status(500).json({ error: "Error al obtener eventos del usuario" });
-    } finally {
-      if (conn) await conn.close();
-    }
-  },
+    const eventos = await Promise.all(result.rows.map(async (row) => {
+      const [
+        id,
+        titulo,
+        descripcion,
+        fecha,
+        hora_inicio,
+        hora_termino,
+        imagenLob,
+        id_estado
+      ] = row;
+
+      let imagenBase64 = null;
+      if (imagenLob) {
+        if (Buffer.isBuffer(imagenLob)) {
+          imagenBase64 = `data:image/jpeg;base64,${imagenLob.toString('base64')}`;
+        } else if (typeof imagenLob === 'object' && typeof imagenLob.on === 'function') {
+          try {
+            const buffer = await lobToBuffer(imagenLob);
+            imagenBase64 = `data:image/jpeg;base64,${buffer.toString('base64')}`;
+          } catch (err) {
+            console.error('Error al convertir LOB a buffer:', err);
+          }
+        }
+      }
+
+      return {
+        id,
+        titulo,
+        descripcion,
+        fecha: `${fecha} a las ${hora_inicio}`,
+        hora_termino,
+        imagen: imagenBase64,
+        id_estado,
+      };
+    }));
+
+    res.json(eventos);
+  } catch (error) {
+    console.error("Error al obtener eventos del usuario:", error);
+    res.status(500).json({ error: "Error al obtener eventos del usuario" });
+  } finally {
+    if (conn) await conn.close();
+  }
+},
 
   // Crear evento (con imagen base64)
 createEvent: async (req, res) => {
