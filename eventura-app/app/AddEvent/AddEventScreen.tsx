@@ -172,10 +172,10 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
       showsVerticalScrollIndicator={false}
     >
       <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 10 }}>
-        Crea un evento :3
+        Crea un evento
       </Text>
 
-      <Text style={styles.label}>Nombre del Evento</Text>
+      <Text style={styles.label}>Nombre</Text>
       <TextInput
         style={styles.input}
         value={nombre}
@@ -183,16 +183,17 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
         placeholder="Nombre del evento"
       />
 
-      <Text style={styles.label}>Descripción</Text>
+    <Text style={styles.label}>Descripción</Text>
       <TextInput
-        style={[styles.input, { height: 80 }]}
+        style={[styles.input, { height: 60 }]}
         value={descripcion}
         onChangeText={setDescripcion}
         placeholder="Descripción del evento"
         multiline
       />
 
-      <Text style={styles.label}>Lugar</Text>
+      
+      <Text style={styles.label}>Lugar del Evento</Text>
       <TextInput
         style={styles.input}
         placeholder="Buscar lugar del evento"
@@ -240,7 +241,7 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
         />
       )}
 
-      <Text style={styles.label}>Hora de Inicio</Text>
+      <Text style={styles.label}>Hora de inicio</Text>
       <TouchableOpacity onPress={() => setShowHoraInicio(true)} style={styles.input}>
         <Text>
           {horaInicio.toLocaleTimeString([], {
@@ -262,7 +263,7 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
         />
       )}
 
-      <Text style={styles.label}>Hora de Término</Text>
+      <Text style={styles.label}>Hora de término</Text>
       <TouchableOpacity onPress={() => setShowHoraTermino(true)} style={styles.input}>
         <Text>
           {horaTermino.toLocaleTimeString([], {
@@ -284,7 +285,7 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
         />
       )}
 
-      <Text style={styles.label}>Tipo de Evento</Text>
+      <Text style={styles.label}>Tipo de evento</Text>
       <View style={styles.picker}>
         {tiposEvento.map((tipo) => (
           <TouchableOpacity
@@ -309,7 +310,7 @@ export default function AddEventScreen({ onSuccess }: { onSuccess?: () => void }
       </View>
 
       {/* Imagen */}
-      <Text style={styles.label}>Imagen del Evento</Text>
+      <Text style={styles.label}>Imagen del evento</Text>
       <TouchableOpacity style={styles.input} onPress={pickImage} disabled={picking}>
         <Text style={{ color: '#ff9800', textAlign: 'center' }}>
           {imagen ? 'Cambiar imagen' : 'Seleccionar imagen'}
@@ -358,12 +359,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   input: {
-    borderWidth: 1,
+    borderBottomWidth: 1,
     borderColor: "#ff9800",
-    borderRadius: 8,
     padding: 10,
     marginBottom: 8,
-    backgroundColor: "#fff7e6",
+    backgroundColor: "#fff",
+    // borderRadius eliminado para que el borde sea recto abajo
   },
   picker: {
     flexDirection: "row",

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import Button from '../../Components/Button';
 import Header from '../../Components/Header';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -26,22 +26,33 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
   } = useRegister(navigation);
 
   return (
-    <View style={styles.container}>
-      <Header />
-      <View style={styles.content}>
-        <Text style={styles.title}>REGISTRO</Text>
-        <RegisterForm
-          username={username}
-          setUsername={setUsername}
-          email={email}
-          setEmail={setEmail}
-          password={password}
-          setPassword={setPassword}
-          confirmPassword={confirmPassword}
-          setConfirmPassword={setConfirmPassword}
-        />
-        <Button onPress={handleRegister} title='Registrarse'/>
-      </View>
-    </View>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+    >
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.container}>
+          <Header />
+          <View style={styles.content}>
+            <Text style={styles.title}>REGISTRO</Text>
+            <RegisterForm
+              username={username}
+              setUsername={setUsername}
+              email={email}
+              setEmail={setEmail}
+              password={password}
+              setPassword={setPassword}
+              confirmPassword={confirmPassword}
+              setConfirmPassword={setConfirmPassword}
+            />
+            <Button onPress={handleRegister} title='Registrarse'/>
+          </View>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

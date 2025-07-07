@@ -1,6 +1,6 @@
 // app/Login/LoginScreen.tsx
 import React, { useEffect } from "react";
-import { View, Text, ActivityIndicator } from "react-native";
+import { View, Text, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import LoginForm from "./LoginForm";
 import Button from "../../Components/Button";
 import Header from "../../Components/Header";
@@ -53,32 +53,43 @@ export default function LoginScreen({
   };
 
   return (
-    <View style={styles.container}>
-      <Header />
-      <View style={styles.content}>
-        <Text style={styles.title}>INICIO DE SESIÓN</Text>
-        <LoginForm
-          email={email}
-          setEmail={setEmail}
-          password={password}
-          setPassword={setPassword}
-        />
-        <View
-          style={{
-            height: 220,
-            alignItems: "center",
-          }}
-        >
-          {isLoading ? (
-            <ActivityIndicator size="large" color="#0000ff" />
-          ) : (
-            <>
-              <Button onPress={onSubmit} title="Acceder" />
-              <Button onPress={handleRegister} title="Registrarse" />
-            </>
-          )}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+    >
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.container}>
+          <Header />
+          <View style={styles.content}>
+            <Text style={styles.title}>INICIO DE SESIÓN</Text>
+            <LoginForm
+              email={email}
+              setEmail={setEmail}
+              password={password}
+              setPassword={setPassword}
+            />
+            <View
+              style={{
+                height: 220,
+                alignItems: "center",
+              }}
+            >
+              {isLoading ? (
+                <ActivityIndicator size="large" color="#0000ff" />
+              ) : (
+                <>
+                  <Button onPress={onSubmit} title="Acceder" />
+                  <Button onPress={handleRegister} title="Registrarse" />
+                </>
+              )}
+            </View>
+          </View>
         </View>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
