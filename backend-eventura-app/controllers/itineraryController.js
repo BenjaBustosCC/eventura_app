@@ -96,8 +96,10 @@ exports.generarItinerarioDesdeEventos = async (req, res) => {
       .join("\n");
 
     // Incluye la fecha en el prompt para la IA
-    const prompt = `Genera un itinerario cultural para una persona en ${ubicacion || "la ciudad"} para el día ${fechaActual} con los siguientes eventos:\n${listaEventos}`;
-
+    const prompt = `Genera un itinerario cultural para una persona en ${ubicacion || "la ciudad"} para el día ${fechaActual}. 
+    Recomienda todos los eventos listados a continuación, sin importar si ya pasó la hora, ya que lo importante es sugerir los eventos reales de la base de datos para ese día. 
+    Si faltan actividades para completar el día, puedes sugerir otros panoramas o lugares de interés en la ciudad. 
+    Eventos del día:\n${listaEventos}`;
     const response = await axios.post(
       process.env.OPENAI_API_URL,
       {
