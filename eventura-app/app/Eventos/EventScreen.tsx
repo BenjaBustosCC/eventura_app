@@ -13,7 +13,8 @@ type Evento = {
   nombre_evento?: string;
   fecha?: string;
   imagen?: string;
-  id_usuario?: number | string; // <-- asegúrate de incluir este campo
+  id_estado?: number | null;
+  id_usuario?: number | string;
 };
 
 type RootStackParamList = {
@@ -79,6 +80,19 @@ export default function EventScreen() {
     }
   };
 
+// Agrupa los eventos por estado
+const pendientes = eventos.filter(e => e.id_estado === 1 || e.id_estado == null);
+const aprobados = eventos.filter(e => e.id_estado === 2);
+const rechazados = eventos.filter(e => e.id_estado === 3);
+const finalizados = eventos.filter(e => e.id_estado === 4);
+
+// Crea una lista combinada con secciones
+const dataWithSections = [
+  ...(pendientes.length > 0 ? [{ section: "Pendientes de aprobación" }, ...pendientes] : []),
+  ...(aprobados.length > 0 ? [{ section: "Aprobados" }, ...aprobados] : []),
+  ...(rechazados.length > 0 ? [{ section: "Rechazados" }, ...rechazados] : []),
+  ...(finalizados.length > 0 ? [{ section: "Finalizados" }, ...finalizados] : []),
+];
   if (loading) {
     return (
       <View style={styles.containerLoading}>
@@ -91,24 +105,34 @@ export default function EventScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Tus eventos</Text>
       <FlatList
-        data={eventos}
-        keyExtractor={item => item.id?.toString() || Math.random().toString()}
-        renderItem={({ item }) => (
-          <EventCard
-            nombre={item.titulo || item.nombre_evento || item.nombre || 'Evento sin nombre'}
-            fecha={item.fecha || ''}
-            imagen={item.imagen}
-            onDelete={() => handleDelete(item)}
-            onEdit={() =>
-              navigation.navigate('EditEventScreen', {
-                evento: {
-                  ...item,
-                  id_usuario: item.id_usuario ?? user?.id, // <-- asegura que siempre tenga id_usuario
-                },
-              })
-            }
-          />
-        )}
+        data={dataWithSections}
+        keyExtractor={(item, idx) =>
+          item.section ? `section-${item.section}` : item.id?.toString() || Math.random().toString()
+        }
+        renderItem={({ item }) => {
+          if (item.section) {
+            return (
+              <Text style={styles.sectionTitle}>{item.section}</Text>
+            );
+          }
+          return (
+            <EventCard
+              nombre={item.titulo || item.nombre_evento || item.nombre || 'Evento sin nombre'}
+              fecha={item.fecha || ''}
+              imagen={item.imagen}
+              id_estado={item.id_estado}
+              onDelete={() => handleDelete(item)}
+              onEdit={() =>
+                navigation.navigate('EditEventScreen', {
+                  evento: {
+                    ...item,
+                    id_usuario: item.id_usuario ?? user?.id,
+                  },
+                })
+              }
+            />
+          );
+        }}
         ListEmptyComponent={<Text>No tienes eventos.</Text>}
         showsVerticalScrollIndicator={false}
       />
@@ -165,6 +189,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
     textAlign: 'center',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: "#333",
+    marginTop: 24,
+    marginBottom: 8,
+    marginLeft: 4,
   },
   modalOverlay: {
     flex: 1,

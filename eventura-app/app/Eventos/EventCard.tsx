@@ -5,13 +5,20 @@ type HomeCardProps = {
   nombre: string;
   fecha: string;
   imagen?: string;
+  id_estado?: number | null;
   onEdit?: () => void;
   onDelete?: () => void;
 };
 
-export default function HomeCard({ nombre, fecha, imagen, onEdit, onDelete }: HomeCardProps) {
+export default function HomeCard({ nombre, fecha, imagen, id_estado, onEdit, onDelete }: HomeCardProps) {
+  // Define el color de fondo según el estado
+  let cardBg = "#FFF59D"; // Amarillo por defecto (solicitud o nulo)
+  if (id_estado === 2) cardBg = "#A5D6A7"; // Verde aprobado
+  else if (id_estado === 3) cardBg = "#EF9A9A"; // Rojo rechazado
+  else if (id_estado === 4) cardBg = "#B0BEC5"; // Gris para finalizados
+
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: cardBg }]}>
       <View style={styles.row}>
         <Image
           source={{
@@ -28,14 +35,17 @@ export default function HomeCard({ nombre, fecha, imagen, onEdit, onDelete }: Ho
         <View style={styles.info}>
           <Text style={styles.nombre}>{nombre}</Text>
           <Text style={styles.fecha}>{fecha}</Text>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.editButton} onPress={onEdit}>
-              <Text style={styles.buttonText}>Editar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
-              <Text style={styles.buttonText}>Eliminar</Text>
-            </TouchableOpacity>
-          </View>
+          {/* Solo muestra los botones si el evento NO está finalizado */}
+          {id_estado !== 4 && (
+            <View style={styles.buttonRow}>
+              <TouchableOpacity style={styles.editButton} onPress={onEdit}>
+                <Text style={styles.buttonText}>Editar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
+                <Text style={styles.buttonText}>Eliminar</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </View>
     </View>
@@ -75,13 +85,13 @@ const styles = StyleSheet.create({
   nombre: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#000',
     marginBottom: 4,
     textAlign: 'left',
   },
   fecha: {
     fontSize: 16,
-    color: '#fff',
+    color: '#000',
     textAlign: 'left',
     marginBottom: 8,
   },
@@ -104,7 +114,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   buttonText: {
-    color: '#ff9800',
+    color: '#000',
     fontWeight: 'bold',
   },
 });

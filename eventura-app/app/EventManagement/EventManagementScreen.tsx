@@ -50,18 +50,19 @@ const handleChangeEstado = async (evento: any, nuevoEstado: number) => {
   }
 };
 
-  // Agrupa los eventos por estado
-  const solicitudes = eventos.filter(e => e.id_estado === 1 || e.id_estado == null);
-  const aprobados = eventos.filter(e => e.id_estado === 2);
-  const rechazados = eventos.filter(e => e.id_estado === 3);
+// Agrupa los eventos por estado
+const solicitudes = eventos.filter(e => e.id_estado === 1 || e.id_estado == null);
+const aprobados = eventos.filter(e => e.id_estado === 2);
+const rechazados = eventos.filter(e => e.id_estado === 3);
+const finalizados = eventos.filter(e => e.id_estado === 4);
 
-  // Crea una lista combinada con secciones
-  const dataWithSections = [
-    ...(solicitudes.length > 0 ? [{ section: "Solicitudes:" }, ...solicitudes] : []),
-    ...(aprobados.length > 0 ? [{ section: "Eventos aprobados:" }, ...aprobados] : []),
-    ...(rechazados.length > 0 ? [{ section: "Eventos rechazados:" }, ...rechazados] : []),
-  ];
-
+// Crea una lista combinada con secciones
+const dataWithSections = [
+  ...(solicitudes.length > 0 ? [{ section: "Solicitudes:" }, ...solicitudes] : []),
+  ...(aprobados.length > 0 ? [{ section: "Eventos aprobados:" }, ...aprobados] : []),
+  ...(rechazados.length > 0 ? [{ section: "Eventos rechazados:" }, ...rechazados] : []),
+  ...(finalizados.length > 0 ? [{ section: "Eventos finalizados:" }, ...finalizados] : []),
+];
   if (loading) {
     return (
       <View style={styles.container}>
@@ -88,7 +89,7 @@ const handleChangeEstado = async (evento: any, nuevoEstado: number) => {
           if (item.id_estado === 1 || item.id_estado == null) cardBg = "#FFF59D"; // Amarillo
           else if (item.id_estado === 2) cardBg = "#A5D6A7"; // Verde
           else if (item.id_estado === 3) cardBg = "#EF9A9A"; // Rojo
-
+          else if (item.id_estado === 4) cardBg = "#B0BEC5"; // Gris
           return (
             <View style={[styles.card, { backgroundColor: cardBg }]}>
               <Image
