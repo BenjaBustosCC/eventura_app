@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, Image, ActivityIndicator, TouchableOpacity, Alert } from "react-native";
 import { fetchEventos, updateEstadoEvento } from "../../services/eventService";
 
-export default function EventManagementScreen() {
+interface Props {
+  onSolicitudesChange?: (count: number) => void;
+}
+
+export default function EventManagementScreen({ onSolicitudesChange }: Props) {
   const [eventos, setEventos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,15 +24,31 @@ export default function EventManagementScreen() {
     cargarEventos();
   }, []);
 
-  const handleChangeEstado = async (evento: any, nuevoEstado: number) => {
-    try {
-      await updateEstadoEvento(evento.id || evento.id_evento, nuevoEstado);
-      Alert.alert("Éxito", `Evento ${nuevoEstado === 2 ? "aprobado" : "rechazado"}`);
-      cargarEventos();
-    } catch (error) {
-      Alert.alert("Error", "No se pudo actualizar el estado del evento");
+  // Actualiza el contador de solicitudes cada vez que cambian los eventos
+  useEffect(() => {
+    if (onSolicitudesChange) {
+      const count = eventos.filter(e => e.id_estado === 1 || e.id_estado == null).length;
+      onSolicitudesChange(count);
     }
-  };
+  }, [eventos, onSolicitudesChange]);
+
+const handleChangeEstado = async (evento: any, nuevoEstado: number) => {
+  try {
+    await updateEstadoEvento(evento.id_evento ?? evento.id, nuevoEstado);
+    Alert.alert("Éxito", `Evento ${nuevoEstado === 2 ? "aprobado" : "rechazado"}`);
+    setEventos(prev =>
+      prev.map(ev => {
+        const evId = ev.id_evento ?? ev.id;
+        const targetId = evento.id_evento ?? evento.id;
+        return evId === targetId
+          ? { ...ev, id_estado: nuevoEstado }
+          : ev;
+      })
+    );
+  } catch (error) {
+    Alert.alert("Error", "No se pudo actualizar el estado del evento");
+  }
+};
 
   // Agrupa los eventos por estado
   const solicitudes = eventos.filter(e => e.id_estado === 1 || e.id_estado == null);

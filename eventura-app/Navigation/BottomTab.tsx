@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 
 import HomeScreen from "../app/Home/HomeScreen";
 import EventScreen from "../app/Eventos/EventScreen";
@@ -22,17 +23,19 @@ export default function BottomTabNavigator({
 }) {
   const [solicitudesCount, setSolicitudesCount] = useState<number>(0);
 
-  useEffect(() => {
-    if (userRole === 1) {
-      // Carga el número de eventos con id_estado 1 o nulo
-      fetchEventos().then(eventos => {
-        const count = eventos.filter(
-          (e: any) => e.id_estado === 1 || e.id_estado == null
-        ).length;
-        setSolicitudesCount(count);
-      });
-    }
-  }, [userRole]);
+  // Actualiza el contador cada vez que el tab recibe foco
+  useFocusEffect(
+    React.useCallback(() => {
+      if (userRole === 1) {
+        fetchEventos().then(eventos => {
+          const count = eventos.filter(
+            (e: any) => e.id_estado === 1 || e.id_estado == null
+          ).length;
+          setSolicitudesCount(count);
+        });
+      }
+    }, [userRole])
+  );
 
   if (userRole === null || userRole === undefined) {
     return null; // O un spinner de carga
@@ -90,13 +93,19 @@ export default function BottomTabNavigator({
         <>
           <Tab.Screen name="Gestión de Usuarios" component={UserManagement} options={{ headerShown: false }} />
           <Tab.Screen
-            name="Gestión de Eventos"
-            component={EventManagementScreen}
-            options={{
-              headerShown: false,
-              tabBarBadge: solicitudesCount > 0 ? solicitudesCount : undefined,
-            }}
-          />
+  name="Gestión de Eventos"
+  options={{
+    headerShown: false,
+    tabBarBadge: solicitudesCount > 0 ? solicitudesCount : undefined,
+  }}
+>
+  {(props) => (
+    <EventManagementScreen
+      {...props}
+      onSolicitudesChange={setSolicitudesCount}
+    />
+  )}
+</Tab.Screen>
           <Tab.Screen name="Perfil" options={{ headerShown: false }}>
             {(props) => (
               <ProfileScreen {...props} setIsAuthenticated={setIsAuthenticated} />
