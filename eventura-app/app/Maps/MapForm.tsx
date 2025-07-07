@@ -82,9 +82,12 @@ export default function MapForm() {
               ...event,
               latitud: Number(event.latitud),
               longitud: Number(event.longitud),
+              id_estado: event.id_estado, // <--- agrega esto
+              id_estado_evento: event.id_estado_evento, // <--- y esto si aplica
             }))
             .filter(
               (event: any) =>
+                (event.id_estado === 2 || event.id_estado_evento === 2) && // Solo eventos aprobados
                 event.latitud != null &&
                 event.longitud != null &&
                 event.latitud !== 0 &&
@@ -103,6 +106,8 @@ export default function MapForm() {
               descripcion_evento: event.descripcion_evento,
               tipo_evento_nombre: event.tipo_evento_nombre,
               lugar_evento: event.lugar_evento,
+              id_estado: event.id_estado, // <--- agrega esto
+              id_estado_evento: event.id_estado_evento, // <--- y esto si aplica
             }));
 
           setEvents(validEvents);
@@ -133,14 +138,15 @@ export default function MapForm() {
 
   // filtrar eventos según el radio actual y la ubicación
   const eventosFiltrados = events.filter(
-    (event) =>
-      calcularDistanciaKm(
-        region.latitude,
-        region.longitude,
-        event.latitud,
-        event.longitud
-      ) <= radioKm
-  );
+  (event) =>
+    (event.id_estado === 2 || event.id_estado_evento === 2) && // Solo eventos aprobados
+    calcularDistanciaKm(
+      region.latitude,
+      region.longitude,
+      event.latitud,
+      event.longitud
+    ) <= radioKm
+);
 
   return (
     <View style={styles.container}>
