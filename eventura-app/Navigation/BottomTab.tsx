@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -9,7 +9,7 @@ import ProfileScreen from "../app/Profile/ProfileScreen";
 import AddScreen from "../app/AddEvent/AddEventScreen";
 import UserManagement from "../app/UserManagement/UserManagementScreen";
 import EventManagementScreen from "../app/EventManagement/EventManagementScreen";
-
+import { fetchEventos } from "../services/eventService";
 
 const Tab = createBottomTabNavigator();
 
@@ -20,6 +20,20 @@ export default function BottomTabNavigator({
   setIsAuthenticated: (value: boolean) => void;
   userRole: number | null;
 }) {
+  const [solicitudesCount, setSolicitudesCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (userRole === 1) {
+      // Carga el número de eventos con id_estado 1 o nulo
+      fetchEventos().then(eventos => {
+        const count = eventos.filter(
+          (e: any) => e.id_estado === 1 || e.id_estado == null
+        ).length;
+        setSolicitudesCount(count);
+      });
+    }
+  }, [userRole]);
+
   if (userRole === null || userRole === undefined) {
     return null; // O un spinner de carga
   }
@@ -46,9 +60,6 @@ export default function BottomTabNavigator({
       {/* Rol 2: Home, Mapa, Perfil */}
       {userRole === 2 && (
         <>
-        {/*PARA QUE LAS NAVEGACIONES (TABS Y STACK) FUNCIONEN JUNTAS HAY QUE QUITAR EL COMPONENTE
-        Y USAR LOS PROPS (VER TAB.MAPA-TAB.PERFIL, ETC) PARA QUE SE COMBINEN
-        Y EL STACK PUEDA SER USADO EN LOS TABS--CREO-- PERO ASI ME HA FUNCIONADO*/}
           <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
           <Tab.Screen name="Mapa" options={{ headerShown: false }} >
             {(props) => (
@@ -74,11 +85,18 @@ export default function BottomTabNavigator({
           </Tab.Screen>
         </>
       )}
-      {/* Rol 1: Solo Gestión de Usuarios */}
+      {/* Rol 1: Gestión de Usuarios, Gestión de Eventos (con badge), Perfil */}
       {userRole === 1 && (
         <>
           <Tab.Screen name="Gestión de Usuarios" component={UserManagement} options={{ headerShown: false }} />
-          <Tab.Screen name="Gestión de Eventos" component={EventManagementScreen} options={{ headerShown: false }}/>
+          <Tab.Screen
+            name="Gestión de Eventos"
+            component={EventManagementScreen}
+            options={{
+              headerShown: false,
+              tabBarBadge: solicitudesCount > 0 ? solicitudesCount : undefined,
+            }}
+          />
           <Tab.Screen name="Perfil" options={{ headerShown: false }}>
             {(props) => (
               <ProfileScreen {...props} setIsAuthenticated={setIsAuthenticated} />

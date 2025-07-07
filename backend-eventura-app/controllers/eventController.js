@@ -271,7 +271,7 @@ createEvent: async (req, res) => {
       longitud,
       id_usuario,
       id_tipo_evento,
-      id_estado, // <-- nuevo campo
+  // id_estado, // <-- ya no lo tomas del body
       imagen // <-- base64 string opcional
     } = req.body;
 
@@ -315,7 +315,7 @@ createEvent: async (req, res) => {
         longitud,
         id_usuario,
         id_tipo_evento,
-        id_estado
+        1 // <-- fuerza id_estado a 1 siempre
       ];
 
       if (imagen) {
@@ -361,7 +361,38 @@ createEvent: async (req, res) => {
       if (conn) await conn.close();
       res.status(500).json({ error: error.message });
     }
+  },
+
+  updateEstado: async (req, res) => {
+  const { id } = req.params;
+  const { id_estado } = req.body;
+
+  if (typeof id_estado !== "number") {
+    return res.status(400).json({ error: "id_estado es requerido y debe ser numérico" });
   }
+
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const result = await conn.execute(
+      `UPDATE evento SET id_estado = :1 WHERE id_evento = :2`,
+      [id_estado, id],
+      { autoCommit: true }
+    );
+    await conn.close();
+
+    if (result.rowsAffected && result.rowsAffected > 0) {
+      res.json({ message: "Estado actualizado correctamente" });
+    } else {
+      res.status(404).json({ message: "Evento no encontrado" });
+    }
+  } catch (error) {
+    if (conn) await conn.close();
+    console.error("Error al actualizar estado:", error);
+    res.status(500).json({ error: error.message });
+  }
+},
+
 };
 
 module.exports = eventController;

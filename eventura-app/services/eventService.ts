@@ -86,3 +86,16 @@ export async function updateEvento(id: number | string, evento: {
   }
   return response.json();
 }
+
+export async function updateEstadoEvento(id: number | string, id_estado: number) {
+  const response = await fetch(`${API_URL}/eventos/eventos/${id}/estado`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id_estado }),
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Error al actualizar estado: ${errorText}`);
+  }
+  return response.json();
+}

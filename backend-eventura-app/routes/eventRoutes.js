@@ -20,4 +20,6 @@ router.put('/eventos/:id', eventController.updateEvent);
 // Delete event
 router.delete('/eventos/:id', eventController.deleteEvent);
 
+router.patch('/eventos/:id/estado', eventController.updateEstado);
+
 module.exports = router;
