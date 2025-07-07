@@ -95,7 +95,8 @@ exports.generarItinerarioDesdeEventos = async (req, res) => {
       )
       .join("\n");
 
-    const prompt = `Genera un itinerario cultural para una persona en ${ubicacion || "la ciudad"} con los siguientes eventos:\n${listaEventos}`;
+    // Incluye la fecha en el prompt para la IA
+    const prompt = `Genera un itinerario cultural para una persona en ${ubicacion || "la ciudad"} para el día ${fechaActual} con los siguientes eventos:\n${listaEventos}`;
 
     const response = await axios.post(
       process.env.OPENAI_API_URL,
@@ -125,17 +126,17 @@ exports.generarItinerarioDesdeEventos = async (req, res) => {
 
     // GUARDAR EL ITINERARIO EN LA TABLA
     const id_usuario = req.body.id_usuario; // asegúrate de enviar id_usuario desde el frontend
-await connection.execute(
-  `INSERT INTO itinerario (id_usuario, ciudad, fecha, contenido)
-   VALUES (:id_usuario, :ciudad, TO_DATE(:fecha, 'YYYY-MM-DD'), :contenido)`,
-  {
-    id_usuario,
-    ciudad: ubicacion || null,
-    fecha: fechaActual,
-    contenido: textoGenerado || "No se pudo generar itinerario.",
-  },
-  { autoCommit: true }
-);
+    await connection.execute(
+      `INSERT INTO itinerario (id_usuario, ciudad, fecha, contenido)
+       VALUES (:id_usuario, :ciudad, TO_DATE(:fecha, 'YYYY-MM-DD'), :contenido)`,
+      {
+        id_usuario,
+        ciudad: ubicacion || null,
+        fecha: fechaActual,
+        contenido: textoGenerado || "No se pudo generar itinerario.",
+      },
+      { autoCommit: true }
+    );
     return res.status(200).json({ itinerario: textoGenerado || "No se pudo generar itinerario." });
 
   } catch (error) {

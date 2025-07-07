@@ -12,7 +12,7 @@ const itineraryRoutes = require('./routes/itineraryRoutes');
 const artistRoutes = require("./routes/artistRoutes");
 
 const app = express();
-const PORT = 8081;
+const PORT = 3001;
 
 app.use(cors({
   origin: "*",
