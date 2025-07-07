@@ -24,7 +24,7 @@ export default function App() {
     const restoreSession = async () => {
       try {
         //comentar y descomentar para dejar la sesion
-        await AsyncStorage.clear();
+       // await AsyncStorage.clear();
 
         const token = await authService.getToken();
         if (!token) {

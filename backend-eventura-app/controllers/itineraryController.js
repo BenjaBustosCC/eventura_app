@@ -10,7 +10,7 @@ exports.generarItinerarioDesdeEventos = async (req, res) => {
     connection = await pool.getConnection();
 
     const result = await connection.execute(
-    `SELECT NOMBRE_EVENTO, DESCRIPCION_EVENTO, FECHA_EVENTO, LUGAR_EVENTO
+    `SELECT NOMBRE_EVENTO, LUGAR_EVENTO, FECHA_EVENTO, HORA_INICIO_EVENTO, HORA_TERMINO_EVENTO
      FROM EVENTO
      WHERE FECHA_EVENTO >= SYSDATE
      ORDER BY FECHA_EVENTO
@@ -25,7 +25,7 @@ exports.generarItinerarioDesdeEventos = async (req, res) => {
     }
     //arreglar para que hable en persona y no en maquina
     const listaEventos = eventos
-      .map(([nombre, descripcion, fecha, lugar]) => `- ${nombre} en ${lugar} el ${fecha}`)
+      .map(([nombre, fecha, lugar]) => `- ${nombre} en ${lugar} el ${fecha}`)
       .join("\n");
 
     const prompt = `Genera un itinerario cultural para una persona con los siguientes eventos:\n${listaEventos}`;
