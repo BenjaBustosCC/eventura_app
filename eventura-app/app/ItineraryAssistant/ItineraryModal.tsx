@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { generarItinerario } from "./ChatService";
+import { authService } from "../../services/authService";
 
 type ItineraryModalProps = {
   visible: boolean;
@@ -33,11 +34,17 @@ export default function ItineraryModal({ visible, onClose }: ItineraryModalProps
   setLoading(true);
   try {
     let prompt = userInput.trim();
-    // Si el usuario solo escribe una palabra (la ciudad), genera el prompt completo incluyendo la ciudad
     if (!prompt.toLowerCase().includes("quiero visitar") && prompt.split(" ").length <= 3) {
       prompt = `Hola, hoy quiero visitar ${userInput.trim()}, ¿me podrías generar un itinerario con eventos o lugares a los que pueda ir durante el día en ${userInput.trim()}?`;
     }
-    const respuestaGenerada = await generarItinerario(prompt);
+    // Obtén el usuario autenticado
+    const user = await authService.getCurrentUser();
+    if (!user || !user.id) {
+      setRespuesta("No se pudo obtener el usuario autenticado.");
+      setLoading(false);
+      return;
+    }
+    const respuestaGenerada = await generarItinerario(prompt, user.id); // Usa el id real
     setRespuesta(respuestaGenerada);
   } catch (error) {
     setRespuesta("Ocurrió un error generando el itinerario.");

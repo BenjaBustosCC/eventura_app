@@ -2,6 +2,44 @@ const pool = require("../db.js");
 const axios = require("axios");
 require('dotenv').config();
 
+exports.getItinerariosByUsuario = async (req, res) => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    const { id_usuario } = req.params;
+    const result = await connection.execute(
+      `SELECT id_itinerario, ciudad, TO_CHAR(fecha, 'YYYY-MM-DD') as fecha, contenido, creado_en
+       FROM itinerario
+       WHERE id_usuario = :id_usuario
+       ORDER BY creado_en DESC`,
+      { id_usuario }
+    );
+
+    const keys = ["id_itinerario", "ciudad", "fecha", "contenido", "creado_en"];
+    // Procesa los LOBs a string
+    const itinerarios = await Promise.all(result.rows.map(async row => {
+      const obj = Object.fromEntries(keys.map((k, i) => [k, row[i]]));
+      // Si contenido es un LOB, conviértelo a string
+      if (obj.contenido && typeof obj.contenido === "object" && typeof obj.contenido.getData === "function") {
+        obj.contenido = await obj.contenido.getData();
+      }
+      return obj;
+    }));
+
+    res.json(itinerarios);
+  } catch (error) {
+    res.status(500).json({ error: "No se pudieron obtener los itinerarios" });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (e) {
+        console.error("Error cerrando conexión:", e);
+      }
+    }
+  }
+};
+
 exports.generarItinerarioDesdeEventos = async (req, res) => {
   let connection;
 
@@ -84,6 +122,20 @@ exports.generarItinerarioDesdeEventos = async (req, res) => {
     );
 
     const textoGenerado = response.data.choices?.[0]?.message?.content?.trim();
+
+    // GUARDAR EL ITINERARIO EN LA TABLA
+    const id_usuario = req.body.id_usuario; // asegúrate de enviar id_usuario desde el frontend
+await connection.execute(
+  `INSERT INTO itinerario (id_usuario, ciudad, fecha, contenido)
+   VALUES (:id_usuario, :ciudad, TO_DATE(:fecha, 'YYYY-MM-DD'), :contenido)`,
+  {
+    id_usuario,
+    ciudad: ubicacion || null,
+    fecha: fechaActual,
+    contenido: textoGenerado || "No se pudo generar itinerario.",
+  },
+  { autoCommit: true }
+);
     return res.status(200).json({ itinerario: textoGenerado || "No se pudo generar itinerario." });
 
   } catch (error) {
