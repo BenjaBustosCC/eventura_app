@@ -11,6 +11,8 @@ import AddScreen from "../app/AddEvent/AddEventScreen";
 import UserManagement from "../app/UserManagement/UserManagementScreen";
 import EventManagementScreen from "../app/EventManagement/EventManagementScreen";
 import { fetchEventos } from "../services/eventService";
+import GestoresScreen from "../app/GestoresManagement/GestoresScreen"; // Asegúrate de tener este import
+
 
 const Tab = createBottomTabNavigator();
 
@@ -90,29 +92,35 @@ export default function BottomTabNavigator({
       )}
       {/* Rol 1: Gestión de Usuarios, Gestión de Eventos (con badge), Perfil */}
       {userRole === 1 && (
-        <>
-          <Tab.Screen name="Gestión de Usuarios" component={UserManagement} options={{ headerShown: false }} />
-          <Tab.Screen
-  name="Gestión de Eventos"
-  options={{
-    headerShown: false,
-    tabBarBadge: solicitudesCount > 0 ? solicitudesCount : undefined,
-  }}
->
-  {(props) => (
-    <EventManagementScreen
-      {...props}
-      onSolicitudesChange={setSolicitudesCount}
+  <>
+    
+    <Tab.Screen name="Gestión de Usuarios" component={UserManagement} options={{ headerShown: false }} />
+    <Tab.Screen
+      name="Gestores"
+      component={GestoresScreen}
+      options={{ headerShown: false }}
     />
-  )}
-</Tab.Screen>
-          <Tab.Screen name="Perfil" options={{ headerShown: false }}>
-            {(props) => (
-              <ProfileScreen {...props} setIsAuthenticated={setIsAuthenticated} />
-            )}
-          </Tab.Screen>
-        </>
+    <Tab.Screen
+      name="Gestión de Eventos"
+      options={{
+        headerShown: false,
+        tabBarBadge: solicitudesCount > 0 ? solicitudesCount : undefined,
+      }}
+    >
+      {(props) => (
+        <EventManagementScreen
+          {...props}
+          onSolicitudesChange={setSolicitudesCount}
+        />
       )}
+    </Tab.Screen>
+    <Tab.Screen name="Perfil" options={{ headerShown: false }}>
+      {(props) => (
+        <ProfileScreen {...props} setIsAuthenticated={setIsAuthenticated} />
+      )}
+    </Tab.Screen>
+  </>
+)}
     </Tab.Navigator>
   );
 }

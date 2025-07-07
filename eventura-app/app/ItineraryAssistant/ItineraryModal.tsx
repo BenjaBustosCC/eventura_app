@@ -8,7 +8,6 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
-  Button,
 } from "react-native";
 import { generarItinerario } from "./ChatService";
 
@@ -21,7 +20,7 @@ export default function ItineraryModal({ visible, onClose }: ItineraryModalProps
   const [userInput, setUserInput] = useState("");
   const [respuesta, setRespuesta] = useState("");
   const [loading, setLoading] = useState(false);
-  
+
   const handleClose = () => {
     setUserInput("");
     setRespuesta("");
@@ -29,18 +28,23 @@ export default function ItineraryModal({ visible, onClose }: ItineraryModalProps
   };
 
   const handleGenerar = async () => {
-    if (!userInput.trim()) return;
+  if (!userInput.trim()) return;
 
-    setLoading(true);
-    try {
-      const respuestaGenerada = await generarItinerario(userInput);
-      setRespuesta(respuestaGenerada);
-    } catch (error) {
-      setRespuesta("Ocurrió un error generando el itinerario.");
-      console.error(error);
+  setLoading(true);
+  try {
+    let prompt = userInput.trim();
+    // Si el usuario solo escribe una palabra (la ciudad), genera el prompt completo incluyendo la ciudad
+    if (!prompt.toLowerCase().includes("quiero visitar") && prompt.split(" ").length <= 3) {
+      prompt = `Hola, hoy quiero visitar ${userInput.trim()}, ¿me podrías generar un itinerario con eventos o lugares a los que pueda ir durante el día en ${userInput.trim()}?`;
     }
-    setLoading(false);
-  };
+    const respuestaGenerada = await generarItinerario(prompt);
+    setRespuesta(respuestaGenerada);
+  } catch (error) {
+    setRespuesta("Ocurrió un error generando el itinerario.");
+    console.error(error);
+  }
+  setLoading(false);
+};
 
   return (
     <Modal visible={visible} animationType="slide" transparent={true}>
@@ -62,9 +66,11 @@ export default function ItineraryModal({ visible, onClose }: ItineraryModalProps
 
           {loading && <ActivityIndicator size="small" color="#6200ee" style={{ marginTop: 10 }} />}
 
-          <ScrollView style={styles.resultContainer}>
-            <Text style={styles.resultText}>{respuesta}</Text>
-          </ScrollView>
+          {respuesta ? (
+            <ScrollView style={styles.resultContainer}>
+              <Text style={styles.resultText}>{respuesta}</Text>
+            </ScrollView>
+          ) : null}
 
           <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
             <Text style={styles.closeText}>Cerrar</Text>
@@ -74,7 +80,6 @@ export default function ItineraryModal({ visible, onClose }: ItineraryModalProps
     </Modal>
   );
 }
-
 
 const styles = StyleSheet.create({
   overlay: {

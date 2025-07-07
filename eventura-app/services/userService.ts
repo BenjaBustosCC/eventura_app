@@ -70,5 +70,13 @@ export const userService = {
     }
     return await response.json();
   },
+deleteUser: async (userId: number): Promise<void> => {
+  const response = await fetch(`${API_URL}/users/usuarios/${userId}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error("No se pudo eliminar el usuario");
+  }
+},
   };
   

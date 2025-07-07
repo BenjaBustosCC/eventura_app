@@ -9,6 +9,7 @@ const eventRoutes = require("./routes/eventRoutes");
 const eventTypeRoutes = require("./routes/eventTypeRoutes");
 const authRoutes = require('./routes/authRoutes');
 const itineraryRoutes = require('./routes/itineraryRoutes');
+const artistRoutes = require("./routes/artistRoutes");
 
 const app = express();
 const PORT = 3001;
@@ -31,6 +32,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/eventos", eventRoutes);
 app.use("/api/tipos-evento", eventTypeRoutes);
 app.use("/api/itinerary", itineraryRoutes);
+app.use("/api/artist", artistRoutes);
 
 
 // Iniciar el servidor

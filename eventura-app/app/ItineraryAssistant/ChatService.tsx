@@ -19,10 +19,12 @@ export async function generarItinerario(promptUsuario: string): Promise<string> 
     }
 
     const data = await response.json();
-    return data.resultado || "No se recibió una respuesta válida.";
+    console.log("Respuesta del backend:", data);
+
+    // Ajusta aquí según la propiedad real que recibes
+    return data.itinerario || "No se recibió una respuesta válida.";
   } catch (error) {
     console.error("Error en la petición:", error);
-    console.log("Detalles del error:", error);
     return "Ocurrió un error al generar el itinerario.";
   }
 }

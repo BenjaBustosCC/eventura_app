@@ -62,8 +62,30 @@ const updateUserRole = async (req, res) => {
   }
 };
 
+const deleteUser = async (req, res) => {
+  const { id } = req.params;
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const result = await conn.execute(
+      "DELETE FROM usuarios WHERE id_usuario = :id",
+      { id },
+      { autoCommit: true }
+    );
+    await conn.close();
+    if (result.rowsAffected === 0) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+    res.json({ message: "Usuario eliminado correctamente" });
+  } catch (error) {
+    if (conn) await conn.close();
+    res.status(500).json({ error: "Error al eliminar usuario" });
+  }
+};
+
 module.exports = {
   registerUser,
   getAllUsers,
-  updateUserRole
+  updateUserRole,
+  deleteUser
 };

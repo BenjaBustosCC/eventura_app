@@ -11,7 +11,9 @@ import BottomTabNavigator from "./Navigation/BottomTab";
 import { authService } from "./services/authService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DetalleEventoScreen from "./app/DetalleEvento/DetalleEventoScreen";
-import EditEventScreen from "./app/EditEvent/EditEventScreen"; // <-- Asegúrate de importar
+import EditEventScreen from "./app/EditEvent/EditEventScreen";
+import ArtistRegisterScreen from "./app/Profile/ArtistRegisterScreen";
+
 
 
 
@@ -88,6 +90,11 @@ export default function App() {
           </Stack.Screen>
           <Stack.Screen name="DetalleEventoScreen" component={DetalleEventoScreen} />
           <Stack.Screen name="EditEventScreen" component={EditEventScreen} /> 
+          <Stack.Screen
+  name="ArtistRegisterScreen"
+  component={ArtistRegisterScreen}
+  options={{ title: "Registro como Artista" }}
+/>
         </>
       )}
     </Stack.Navigator>

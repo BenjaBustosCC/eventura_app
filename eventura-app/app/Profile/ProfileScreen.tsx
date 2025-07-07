@@ -10,6 +10,7 @@ import {
 import { authService } from "../../services/authService";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
 
 export default function ProfileScreen({
   setIsAuthenticated,
@@ -20,6 +21,9 @@ export default function ProfileScreen({
     email: string;
     name: string;
   }>({ name: "Nombre de usuario", email: "Email" });
+
+  const navigation = useNavigation();
+
   const handleLogout = async () => {
     await authService.logout();
     if (typeof setIsAuthenticated === "function") {
@@ -31,7 +35,6 @@ export default function ProfileScreen({
     const handleUserData = async () => {
       try {
         const userData = await authService.getCurrentUser();
-        console.log("🚀 ~ handleUserData ~ userData:", userData);
         if (!userData) {
           console.log("No hay datos de usuario disponibles.");
           return;
@@ -56,7 +59,6 @@ export default function ProfileScreen({
             source={require("../../assets/brujula.png")}
             style={styles.avatar}
           />
-
         </View>
         <View>
           <Text style={styles.nombre}>{userData.name}</Text>
@@ -69,7 +71,10 @@ export default function ProfileScreen({
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Configuración</Text>
             <MenuItem label="Administración de la cuenta" />
-            <MenuItem label="Regístrate como artista" />
+            <MenuItem
+              label="Regístrate como artista"
+              handlePress={() => navigation.navigate("ArtistRegisterScreen")}
+            />
             <MenuItem label="Privacidad y datos" />
             <MenuItem label="Seguridad" />
             <MenuItem label="Cerrar sesión" handlePress={handleLogout} />
@@ -87,6 +92,7 @@ export default function ProfileScreen({
     </ScrollView>
   );
 }
+
 const MenuItem = ({
   label,
   handlePress,
